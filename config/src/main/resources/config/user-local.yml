@@ -1,0 +1,16 @@
+jwt:
+  secretKey: ${JWT_SECRET_KEY:asoidfjaosidfjoij2134io1iqjoiasj}
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/member
+    username: root
+    password: root
+  jpa:
+    database: "postgresql"
+    show-sql: "true"
+    hibernate:
+      ddl-auto: "create"
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
