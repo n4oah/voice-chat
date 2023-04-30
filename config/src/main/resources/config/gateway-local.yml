@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-not-auth
+          uri: lb://user
+          predicates:
+            - Path=/user/signin
+          filters:
+            - RewritePath=/user(?<segment>/?.*), $\{segment}
+        - id: user
+          uri: lb://user
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user(?<segment>/?.*), $\{segment}
+            - AuthFilter=User

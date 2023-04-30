@@ -1,6 +1,6 @@
 package com.voicechat.user.application;
 
-import com.voicechat.common.vo.AccountJwtClaim;
+import com.voicechat.common.vo.UserJwtClaim;
 import com.voicechat.domain.user.entity.User;
 import com.voicechat.domain.user.repository.UserRepository;
 import com.voicechat.user.component.JwtTokenProvider;
@@ -36,7 +36,7 @@ public class UserService {
     }
 
     public AuthJwtDecodeDto.AuthJwtDecodeResDto jwtDecode(String accessToken) {
-        final AccountJwtClaim account = this.jwtTokenProvider.decodeJwt(accessToken);
+        final UserJwtClaim account = this.jwtTokenProvider.decodeJwt(accessToken);
 
         return new AuthJwtDecodeDto.AuthJwtDecodeResDto(
                 account.id(),

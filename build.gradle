@@ -30,8 +30,8 @@ subprojects {
     }
 
     dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-json'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.0'
 
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
         compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'

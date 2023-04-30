@@ -2,7 +2,7 @@ package com.voicechat.user.component;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.voicechat.common.vo.AccountJwtClaim;
+import com.voicechat.common.vo.UserJwtClaim;
 import com.voicechat.common.vo.IJwtClaim;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -41,7 +41,7 @@ public class JwtTokenProvider {
         return this.createToken(jwtClaim, 360000000);
     }
 
-    public AccountJwtClaim decodeJwt(String jwtToken) {
+    public UserJwtClaim decodeJwt(String jwtToken) {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -51,6 +51,6 @@ public class JwtTokenProvider {
                 .parseClaimsJws(jwtToken)
                 .getBody();
 
-        return objectMapper.convertValue(claims, AccountJwtClaim.class);
+        return objectMapper.convertValue(claims, UserJwtClaim.class);
     }
 }
