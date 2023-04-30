@@ -1,4 +1,4 @@
-package com.voicechat.domain.user;
+package com.voicechat.domain.user.entity;
 
 import com.voicechat.common.domain.AbstractAuditingEntity;
 import jakarta.persistence.*;
