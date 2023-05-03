@@ -1,0 +1,1 @@
+INSERT INTO user_auth_role (name) VALUES ('USER');

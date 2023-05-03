@@ -5,13 +5,13 @@ spring:
         - id: user-not-auth
           uri: lb://user
           predicates:
-            - Path=/user/signin
+            - Path=/users/signin, /users/signup
           filters:
-            - RewritePath=/user(?<segment>/?.*), $\{segment}
+            - RewritePath=/users(?<segment>/?.*), $\{segment}
         - id: user
           uri: lb://user
           predicates:
-            - Path=/user/**
+            - Path=/users/**
           filters:
-            - RewritePath=/user(?<segment>/?.*), $\{segment}
-            - AuthFilter=User
+            - RewritePath=/users(?<segment>/?.*), $\{segment}
+            - AuthFilter

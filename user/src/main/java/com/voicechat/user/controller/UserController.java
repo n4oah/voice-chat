@@ -1,6 +1,6 @@
 package com.voicechat.user.controller;
 
-import com.voicechat.user.application.UserService;
+import com.voicechat.user.application.impl.UserServiceImpl;
 import com.voicechat.user.dto.AuthJwtDecodeDto;
 import com.voicechat.user.dto.SigninDto;
 import com.voicechat.user.dto.SignupDto;
@@ -11,19 +11,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+@RestController()
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @PostMapping("/signup")
     public void signup(@Valid() @RequestBody(required = true) final SignupDto.SignupDtoReq signupDtoReq) {
-        this.userService.signup(signupDtoReq);
+        this.userServiceImpl.signup(signupDtoReq);
     }
 
     @PostMapping(
@@ -46,6 +44,6 @@ public class UserController {
     public AuthJwtDecodeDto.AuthJwtDecodeResDto jwtDecode(
             @Valid() AuthJwtDecodeDto.AuthJwtDecodeReqDto authJwtDecodeReqDto
     ) {
-        return this.userService.jwtDecode(authJwtDecodeReqDto.getAccessToken());
+        return this.userServiceImpl.jwtDecode(authJwtDecodeReqDto.getAccessToken());
     }
 }

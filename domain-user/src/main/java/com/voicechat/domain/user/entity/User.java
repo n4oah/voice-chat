@@ -1,14 +1,21 @@
 package com.voicechat.domain.user.entity;
 
+import com.voicechat.common.constant.UserRole;
 import com.voicechat.common.domain.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
+@Setter
+@Table(name = "users")
 public class User extends AbstractAuditingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +37,13 @@ public class User extends AbstractAuditingEntity {
     @Column(name = "name", length = 20, nullable = false)
     private String name;
 
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_auth",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
+    private Set<UserAuthRole> authorities = new HashSet<>();
+
     public User() {
 
     }
@@ -39,6 +53,9 @@ public class User extends AbstractAuditingEntity {
         user.email = email;
         user.password = password;
         user.name = name;
+
+        final var userAuthRole = new UserAuthRole(UserRole.USER);
+        user.authorities.add(userAuthRole);
 
         return user;
     }

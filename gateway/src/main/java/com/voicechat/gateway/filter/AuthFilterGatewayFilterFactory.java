@@ -24,7 +24,7 @@ public class AuthFilterGatewayFilterFactory
         extends AbstractGatewayFilterFactory<AuthFilterGatewayFilterFactory.Config> {
     private final UserServiceClient userServiceClient;
 
-    private final String ACCOUNT_ID_HEADER_KEY = "X-auth-account-id";
+    private final String USER_ID_HEADER_KEY = "X-auth-user-id";
 
     public AuthFilterGatewayFilterFactory(UserServiceClient userServiceClient) {
         super(Config.class);
@@ -34,6 +34,7 @@ public class AuthFilterGatewayFilterFactory
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
+            System.out.println("Hi");
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
@@ -59,7 +60,7 @@ public class AuthFilterGatewayFilterFactory
                             .map((accountAuthJwtDecodeResDto -> {
                                 exchange.getRequest()
                                         .mutate()
-                                        .header(this.ACCOUNT_ID_HEADER_KEY, String.valueOf(accountAuthJwtDecodeResDto.id()));
+                                        .header(this.USER_ID_HEADER_KEY, String.valueOf(accountAuthJwtDecodeResDto.id()));
                                 return exchange;
                             }))
                             .flatMap(chain::filter)
@@ -74,7 +75,7 @@ public class AuthFilterGatewayFilterFactory
                                     exception.getStatusCode(),
                                     exception.getResponseBodyAsString(StandardCharsets.UTF_8)
                             )
-                            ));
+                        ));
         });
     }
 
