@@ -1,8 +1,10 @@
 package com.voicechat.gateway.filter;
 
+import com.voicechat.common.constant.HeaderKey;
 import com.voicechat.gateway.infa.user.UserServiceClient;
 import com.voicechat.gateway.infa.user.dto.UserAuthJwtDecodeDto;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -24,9 +26,9 @@ public class AuthFilterGatewayFilterFactory
         extends AbstractGatewayFilterFactory<AuthFilterGatewayFilterFactory.Config> {
     private final UserServiceClient userServiceClient;
 
-    private final String USER_ID_HEADER_KEY = "X-auth-user-id";
-
-    public AuthFilterGatewayFilterFactory(UserServiceClient userServiceClient) {
+    public AuthFilterGatewayFilterFactory(
+            UserServiceClient userServiceClient
+    ) {
         super(Config.class);
         this.userServiceClient = userServiceClient;
     }
@@ -34,7 +36,6 @@ public class AuthFilterGatewayFilterFactory
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
-            System.out.println("Hi");
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
@@ -60,7 +61,7 @@ public class AuthFilterGatewayFilterFactory
                             .map((accountAuthJwtDecodeResDto -> {
                                 exchange.getRequest()
                                         .mutate()
-                                        .header(this.USER_ID_HEADER_KEY, String.valueOf(accountAuthJwtDecodeResDto.id()));
+                                        .header(HeaderKey.USER_ID, String.valueOf(accountAuthJwtDecodeResDto.id()));
                                 return exchange;
                             }))
                             .flatMap(chain::filter)
