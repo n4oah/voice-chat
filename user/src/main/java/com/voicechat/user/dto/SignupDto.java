@@ -2,6 +2,7 @@ package com.voicechat.user.dto;
 
 import com.voicechat.domain.user.entity.User;
 import com.voicechat.domain.user.entity.UserAuthRole;
+import com.voicechat.domain.user.repository.UserAuthRoleRepository;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +23,12 @@ public class SignupDto {
             @NotNull
             String name
     ) {
-        public User toEntity(PasswordEncoder passwordEncoder) {
+        public User toEntity(PasswordEncoder passwordEncoder, UserAuthRoleRepository userAuthRoleRepository) {
             return User.createUser(
                     email,
                     passwordEncoder.encode(password),
-                    name
+                    name,
+                    userAuthRoleRepository
             );
         }
     }

@@ -28,7 +28,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
-        System.out.println("HI");
         http
                 .authorizeHttpRequests()
                 .anyRequest().permitAll().and()

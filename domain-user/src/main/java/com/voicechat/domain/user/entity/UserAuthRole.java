@@ -16,10 +16,6 @@ public class UserAuthRole {
     @Column(nullable = false, name = "name")
     private UserRole name;
 
-    public UserAuthRole(UserRole name) {
-        this.name = name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

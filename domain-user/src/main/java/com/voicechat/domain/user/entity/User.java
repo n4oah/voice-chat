@@ -2,6 +2,7 @@ package com.voicechat.domain.user.entity;
 
 import com.voicechat.common.constant.UserRole;
 import com.voicechat.common.domain.AbstractAuditingEntity;
+import com.voicechat.domain.user.repository.UserAuthRoleRepository;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -48,13 +49,18 @@ public class User extends AbstractAuditingEntity {
 
     }
 
-    public static User createUser(String email, String password, String name) {
+    public static User createUser(
+            String email,
+            String password,
+            String name,
+            UserAuthRoleRepository userAuthRoleRepository
+    ) {
         User user = new User();
         user.email = email;
         user.password = password;
         user.name = name;
 
-        final var userAuthRole = new UserAuthRole(UserRole.USER);
+        final var userAuthRole = userAuthRoleRepository.findByName(UserRole.USER);
         user.authorities.add(userAuthRole);
 
         return user;
