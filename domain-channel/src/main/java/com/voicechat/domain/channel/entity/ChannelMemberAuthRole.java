@@ -1,6 +1,6 @@
-package com.voicechat.domain.user.entity;
+package com.voicechat.domain.channel.entity;
 
-import com.voicechat.common.constant.UserRole;
+import com.voicechat.common.constant.ChannelMemberRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "user_auth_role")
+@Table(name = "channel_member_auth_role")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserAuthRole {
+public class ChannelMemberAuthRole {
     @Id
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "name")
-    private UserRole name;
+    private ChannelMemberRole name;
 
-    public UserAuthRole(UserRole name) {
+    public ChannelMemberAuthRole(ChannelMemberRole name) {
         this.name = name;
     }
 
@@ -25,10 +25,10 @@ public class UserAuthRole {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof UserAuthRole)) {
+        if (!(o instanceof ChannelMemberAuthRole)) {
             return false;
         }
 
-        return this.name.equals(((UserAuthRole) o).getName());
+        return this.name.equals(((ChannelMemberAuthRole) o).getName());
     }
 }
