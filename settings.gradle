@@ -8,4 +8,12 @@
  */
 
 rootProject.name = 'voice-chat'
-include('config', 'discovery', 'user', 'gateway', 'domain-user', 'common')
+include('config',
+        'discovery',
+        'user',
+        'gateway',
+        'domain-user',
+        'common',
+        'channel',
+        'domain-channel'
+)
