@@ -2,6 +2,7 @@ package com.voicechat.domain.channel.entity;
 
 import com.voicechat.common.constant.ChannelMemberRole;
 import com.voicechat.common.domain.AbstractAuditingEntity;
+import com.voicechat.domain.channel.repository.ChannelMemberAuthRoleRepository;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,12 +29,25 @@ public class Channel extends AbstractAuditingEntity {
     @OneToMany(mappedBy = "channel", orphanRemoval = true, cascade = {CascadeType.ALL})
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
-    public static void createChannel(String name, Integer maxNumberOfMember, Long createdUserId) {
+    public static Channel createChannel(
+            Long createdUserId,
+            String name,
+            Integer maxNumberOfMember,
+            ChannelMemberAuthRoleRepository channelMemberAuthRoleRepository
+    ) {
         final var channel = new Channel();
         channel.name = name;
         channel.maxNumberOfMember = maxNumberOfMember;
 
-        final var channelMember = ChannelMember.createChannelMember(createdUserId, ChannelMemberRole.MANAGER);
+        final var channelMember =
+                ChannelMember.createChannelMember(
+                        channel,
+                        createdUserId,
+                        ChannelMemberRole.MANAGER,
+                        channelMemberAuthRoleRepository
+                );
         channel.channelMembers.add(channelMember);
+
+        return channel;
     }
 }

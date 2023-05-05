@@ -1,6 +1,7 @@
 package com.voicechat.domain.channel.entity;
 
 import com.voicechat.common.constant.ChannelMemberRole;
+import com.voicechat.domain.channel.repository.ChannelMemberAuthRoleRepository;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,25 +35,33 @@ public class ChannelMember {
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<ChannelMemberAuthRole> authorities = new HashSet<>();
 
-    public static ChannelMember createChannelMember(Long userId, ChannelMemberRole role) {
+    public static ChannelMember createChannelMember(
+            Channel channel,
+            Long userId,
+            ChannelMemberRole role,
+            ChannelMemberAuthRoleRepository channelMemberAuthRoleRepository
+        ) {
         final var channelMember = new ChannelMember();
-        List<ChannelMemberRole> roles = new ArrayList<>();
+        Set<ChannelMemberAuthRole> roles = new HashSet<>();
+        channelMember.channel = channel;
 
         channelMember.userId = userId;
         
         switch (role) {
             case MEMBER ->
-                roles.add(ChannelMemberRole.MEMBER);
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.MEMBER));
             case ASSISTANT_MANAGER -> {
-                roles.add(ChannelMemberRole.MEMBER);
-                roles.add(ChannelMemberRole.ASSISTANT_MANAGER);
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.MEMBER));
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.ASSISTANT_MANAGER));
             }
             case MANAGER -> {
-                roles.add(ChannelMemberRole.MEMBER);
-                roles.add(ChannelMemberRole.ASSISTANT_MANAGER);
-                roles.add(ChannelMemberRole.MANAGER);
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.MEMBER));
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.ASSISTANT_MANAGER));
+                roles.add(channelMemberAuthRoleRepository.findByName(ChannelMemberRole.MANAGER));
             }
         }
+
+        channelMember.authorities = roles;
 
         return channelMember;
     }

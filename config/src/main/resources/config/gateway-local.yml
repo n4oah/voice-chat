@@ -15,3 +15,10 @@ spring:
           filters:
             - RewritePath=/users(?<segment>/?.*), $\{segment}
             - AuthFilter
+        - id: channel
+          uri: lb://channel
+          predicates:
+            - Path=/channel/**
+          filters:
+            - RewritePath=/channel(?<segment>/?.*), $\{segment}
+            - AuthFilter
