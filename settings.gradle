@@ -15,5 +15,7 @@ include('config',
         'domain-user',
         'common',
         'channel',
-        'domain-channel'
+        'domain-channel',
+        'channel-invite',
+        'domain-channel-invite'
 )
