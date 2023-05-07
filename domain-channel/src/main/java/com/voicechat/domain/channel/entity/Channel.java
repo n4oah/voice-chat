@@ -26,6 +26,7 @@ public class Channel extends AbstractAuditingEntity {
     @Column(name = "max_number_of_member", nullable = false)
     private Integer maxNumberOfMember;
 
+    // 채널 멤버도 새로운 서비스로 빼야하는데, 일단 channel 서비스에 포함
     @OneToMany(mappedBy = "channel", orphanRemoval = true, cascade = {CascadeType.ALL})
     private List<ChannelMember> channelMembers = new ArrayList<>();
 
