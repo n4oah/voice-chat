@@ -4,6 +4,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation group: 'org.springframework.security', name: 'spring-security-test', version: '6.0.3'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '4.0.1'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '4.0.1'
