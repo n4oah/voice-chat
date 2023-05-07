@@ -1,7 +1,7 @@
-package com.voicechat.gateway.infa.user;
+package com.voicechat.gateway.adapter.user.out;
 
 import com.voicechat.common.vo.UserJwtClaim;
-import com.voicechat.gateway.infa.user.dto.UserAuthJwtDecodeDto;
+import com.voicechat.gateway.adapter.user.dto.UserAuthJwtDecodeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

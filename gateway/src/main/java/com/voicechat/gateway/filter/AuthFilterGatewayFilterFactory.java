@@ -1,10 +1,9 @@
 package com.voicechat.gateway.filter;
 
 import com.voicechat.common.constant.HeaderKey;
-import com.voicechat.gateway.infa.user.UserServiceClient;
-import com.voicechat.gateway.infa.user.dto.UserAuthJwtDecodeDto;
+import com.voicechat.gateway.adapter.user.out.UserServiceClient;
+import com.voicechat.gateway.adapter.user.dto.UserAuthJwtDecodeDto;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;

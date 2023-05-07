@@ -1,4 +1,4 @@
-package com.voicechat.gateway.infa.user.dto;
+package com.voicechat.gateway.adapter.user.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
