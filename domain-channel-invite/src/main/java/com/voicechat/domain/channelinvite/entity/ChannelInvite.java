@@ -34,6 +34,7 @@ public class ChannelInvite extends AbstractAuditingEntity {
         final var channelInvite = new ChannelInvite();
         channelInvite.invitedChannelId = channelId;
         channelInvite.invitedUserId = userId;
+        channelInvite.status = ChannelInviteStatus.WAITED;
 
         return channelInvite;
     }

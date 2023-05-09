@@ -1,7 +1,8 @@
 package com.voicechat.channelinvite.application;
 
 import com.voicechat.channelinvite.dto.InviteChannelDto;
-import com.voicechat.common.event.Events;
+import com.voicechat.channelinvite.exception.AlreadyChannelInviteUserException;
+import com.voicechat.domain.channelinvite.constants.ChannelInviteStatus;
 import com.voicechat.domain.channelinvite.entity.ChannelInvite;
 import com.voicechat.domain.channelinvite.repository.ChannelInviteRepository;
 import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
@@ -19,6 +20,12 @@ public class ChannelInviteService {
     private final ChannelInviteRepository channelInviteRepository;
 
     public void inviteChannel(@RequestBody @Valid InviteChannelDto.InviteChannelReqDto inviteChannelReqDto) {
+
+        if (this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
+                inviteChannelReqDto.channelId(), inviteChannelReqDto.userId(), ChannelInviteStatus.WAITED).isPresent()) {
+            throw new AlreadyChannelInviteUserException();
+        }
+
         final var channelInvite =
                 ChannelInvite.inviteChannel(
                         inviteChannelReqDto.channelId(), inviteChannelReqDto.userId(), channelInviteChecker
