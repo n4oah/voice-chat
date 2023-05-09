@@ -10,7 +10,12 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "C003", "Invalid Validation"),
 
     // Member
-    EMAIL_DUPLICATION(HttpStatus.CONFLICT, "M001", "Email is Duplication");
+    EMAIL_DUPLICATION(HttpStatus.CONFLICT, "M001", "Email is Duplication"),
+
+    // Channel
+    FULL_CHANNEL(HttpStatus.CONFLICT, "CH001", "The channel is full"),
+    ALREADY_USER_OF_CHANNEL(HttpStatus.CONFLICT, "CH002", "The user is already a member of the channel"),
+    ;
 
     private final String code;
     private final String message;

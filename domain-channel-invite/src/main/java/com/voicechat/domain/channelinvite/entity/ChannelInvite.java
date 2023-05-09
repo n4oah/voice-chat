@@ -1,7 +1,9 @@
 package com.voicechat.domain.channelinvite.entity;
 
 import com.voicechat.common.domain.AbstractAuditingEntity;
+import com.voicechat.common.event.Events;
 import com.voicechat.domain.channelinvite.constants.ChannelInviteStatus;
+import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,4 +27,14 @@ public class ChannelInvite extends AbstractAuditingEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ChannelInviteStatus status;
+
+    public static ChannelInvite inviteChannel(Long channelId, Long userId, ChannelInviteChecker channelInviteChecker) {
+        channelInviteChecker.verifyCreateChannelInvite(channelId, userId);
+
+        final var channelInvite = new ChannelInvite();
+        channelInvite.invitedChannelId = channelId;
+        channelInvite.invitedUserId = userId;
+
+        return channelInvite;
+    }
 }

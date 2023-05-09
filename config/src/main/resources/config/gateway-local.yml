@@ -22,3 +22,10 @@ spring:
           filters:
             - RewritePath=/channel(?<segment>/?.*), $\{segment}
             - AuthFilter
+        - id: channel-invite
+          uri: lb://channel-invite
+          predicates:
+            - Path=/channel-invite/**
+          filters:
+            - RewritePath=/channel-invite(?<segment>/?.*), $\{segment}
+            - AuthFilter
