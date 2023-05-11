@@ -5,6 +5,7 @@ import com.voicechat.domain.channelinvite.entity.ChannelInvite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,4 +15,6 @@ public interface ChannelInviteRepository extends JpaRepository<ChannelInvite, Lo
             Long invitedUserId,
             ChannelInviteStatus status
     );
+
+    List<ChannelInvite> findByInvitedUserIdAndStatus(Long invitedUserId, ChannelInviteStatus status);
 }

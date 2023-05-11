@@ -1,6 +1,7 @@
 package com.voicechat.channel.application;
 
 import com.voicechat.channel.dto.CreateChannelDto;
+import com.voicechat.channel.dto.GetChannelDetailDto;
 import com.voicechat.channel.exception.NotFoundChannelException;
 import com.voicechat.domain.channel.entity.Channel;
 import com.voicechat.domain.channel.repository.ChannelMemberAuthRoleRepository;
@@ -47,5 +48,11 @@ public class ChannelService {
 
         return this.channelMemberRepository.findByChannelAndUserId(channel, userId)
                 .isPresent();
+    }
+
+    public GetChannelDetailDto.GetChannelDetailResDto getChannelDetail(Long channelId) {
+        return this.channelRepository.findById(channelId).map((channel -> new GetChannelDetailDto.GetChannelDetailResDto(
+                channel.getId(), channel.getName(), channel.getMaxNumberOfMember()
+        ))).orElseThrow(NotFoundChannelException::new);
     }
 }

@@ -2,6 +2,7 @@ package com.voicechat.channel.controller;
 
 import com.voicechat.channel.application.ChannelService;
 import com.voicechat.channel.dto.CreateChannelDto;
+import com.voicechat.channel.dto.GetChannelDetailDto;
 import com.voicechat.channel.dto.HasUserByChannelDto;
 import com.voicechat.channel.dto.IsFullChannelDto;
 import com.voicechat.common.constant.HeaderKey;
@@ -23,6 +24,13 @@ public class ChannelController {
             @Valid @RequestBody final CreateChannelDto.CreateChannelDtoReq createChannelDtoReq
     ) {
         this.channelService.createChannel(userId, createChannelDtoReq);
+    }
+
+    @GetMapping("/{channelId}")
+    public GetChannelDetailDto.GetChannelDetailResDto getChannelDetail(
+            @PathVariable("channelId") Long channelId
+    ) {
+        return this.channelService.getChannelDetail(channelId);
     }
 
     @GetMapping("/{channelId}/is-full")

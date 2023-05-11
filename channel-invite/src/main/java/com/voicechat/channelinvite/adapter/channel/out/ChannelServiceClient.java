@@ -1,5 +1,6 @@
 package com.voicechat.channelinvite.adapter.channel.out;
 
+import com.voicechat.channelinvite.adapter.channel.dto.GetChannelDetailDto;
 import com.voicechat.channelinvite.adapter.channel.dto.HasUserByChannelDto;
 import com.voicechat.channelinvite.adapter.channel.dto.IsChannelFullDto;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,5 +19,10 @@ public interface ChannelServiceClient {
     ResponseEntity<HasUserByChannelDto.HasUserByChannelResDto> hasUserByChannel(
             @PathVariable("channelId") Long channelId,
             @PathVariable("userId") Long userId
+    );
+
+    @GetMapping("/{channelId}")
+    ResponseEntity<GetChannelDetailDto.GetChannelDetailResDto> getChannelDetail(
+            @PathVariable("channelId") Long channelId
     );
 }
