@@ -13,4 +13,5 @@ dependencies {
 	compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
 	compileOnly 'org.springframework.boot:spring-boot-starter-security'
 	compileOnly group: 'org.springframework', name: 'spring-web', version: '6.0.8'
+	compileOnly group: 'io.projectreactor', name: 'reactor-core', version: '3.5.6'
 }

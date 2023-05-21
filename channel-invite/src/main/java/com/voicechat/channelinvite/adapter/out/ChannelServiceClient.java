@@ -1,8 +1,8 @@
-package com.voicechat.channelinvite.adapter.channel.out;
+package com.voicechat.channelinvite.adapter.out;
 
-import com.voicechat.channelinvite.adapter.channel.dto.GetChannelDetailDto;
-import com.voicechat.channelinvite.adapter.channel.dto.HasUserByChannelDto;
-import com.voicechat.channelinvite.adapter.channel.dto.IsChannelFullDto;
+import com.voicechat.channelinvite.adapter.dto.GetChannelDetailDto;
+import com.voicechat.channelinvite.adapter.dto.HasUserByChannelDto;
+import com.voicechat.channelinvite.adapter.dto.IsChannelFullDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -15,19 +15,11 @@ public class GetInviteChannelListDto {
             return Collections.unmodifiableList(this.items);
         }
 
-        @RequiredArgsConstructor
-        @Getter
-        public static class GetInviteChannelListResItemDto {
-            @NotNull
-            @Positive
-            private final Long id;
-
-            @NotNull
-            @Positive
-            private final Long channelId;
-
-            @NotNull
-            private final String channelName;
+        public record GetInviteChannelListResItemDto(
+                @NotNull @Positive Long id,
+                @NotNull @Positive Long channelId,
+                @NotNull String channelName
+        ) {
         }
     }
 }

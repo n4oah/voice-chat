@@ -29,6 +29,10 @@ subprojects {
         mavenCentral()
     }
 
+    ext {
+        set('springCloudVersion', "2022.0.2")
+    }
+
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-json'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -37,6 +41,13 @@ subprojects {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
         annotationProcessor 'org.projectlombok:lombok'
     }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+
     test {
         useJUnitPlatform()
     }

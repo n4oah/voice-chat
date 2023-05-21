@@ -1,8 +1,8 @@
 package com.voicechat.channelinvite.adapter;
 
-import com.voicechat.channelinvite.adapter.channel.out.ChannelServiceClient;
-import com.voicechat.domain.channelinvite.exception.AlreadyChannelUserException;
-import com.voicechat.domain.channelinvite.exception.FullChannelException;
+import com.voicechat.channelinvite.adapter.out.ChannelServiceClient;
+import com.voicechat.common.exception.channel.AlreadyChannelUserException;
+import com.voicechat.common.exception.channel.FullChannelException;
 import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

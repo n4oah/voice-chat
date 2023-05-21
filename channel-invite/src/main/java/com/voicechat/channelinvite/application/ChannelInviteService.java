@@ -1,10 +1,12 @@
 package com.voicechat.channelinvite.application;
 
-import com.voicechat.channelinvite.adapter.channel.out.ChannelServiceClient;
+import com.voicechat.channelinvite.adapter.out.ChannelServiceClient;
+import com.voicechat.channelinvite.dto.GetInviteChannelDetailDto;
 import com.voicechat.channelinvite.dto.GetInviteChannelListDto;
 import com.voicechat.channelinvite.dto.InviteChannelDto;
 import com.voicechat.channelinvite.exception.AlreadyChannelInviteUserException;
-import com.voicechat.domain.channelinvite.constants.ChannelInviteStatus;
+import com.voicechat.channelinvite.exception.NotFoundChannelInviteException;
+import com.voicechat.common.constant.ChannelInviteStatus;
 import com.voicechat.domain.channelinvite.entity.ChannelInvite;
 import com.voicechat.domain.channelinvite.repository.ChannelInviteRepository;
 import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
@@ -43,8 +45,6 @@ public class ChannelInviteService {
     public GetInviteChannelListDto.GetInviteChannelListResDto getInviteChannels(Long userId) {
         final var channelInvites = this.channelInviteRepository.findByInvitedUserIdAndStatus(userId, ChannelInviteStatus.WAITED);
 
-        System.out.println("channelInvites" + channelInvites);
-
         return new GetInviteChannelListDto.GetInviteChannelListResDto(
                 channelInvites.stream().map((channelInvite) -> new GetInviteChannelListDto.GetInviteChannelListResDto.GetInviteChannelListResItemDto(
                     channelInvite.getId(),
@@ -52,5 +52,38 @@ public class ChannelInviteService {
                     channelServiceClient.getChannelDetail(channelInvite.getInvitedChannelId()).getBody().name()
                 )
         ).collect(Collectors.toUnmodifiableList()));
+    }
+
+    public void approveInvitedChannel(Long invitedUserId, Long invitedChannelId) {
+        final var channelInvite = this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
+            invitedChannelId,
+            invitedUserId,
+            ChannelInviteStatus.WAITED
+        ).orElseThrow(NotFoundChannelInviteException::new);
+
+        channelInvite.approveInvitedChannel(channelInviteChecker);
+
+        this.channelInviteRepository.save(channelInvite);
+    }
+
+    public void rejectChannelInvite(Long channelInviteId) {
+        this.channelInviteRepository.findById(channelInviteId)
+                .ifPresent(ChannelInvite::rejectInvitedChannel);
+    }
+
+    public GetInviteChannelDetailDto.GetInviteChannelDetailRes getInviteChannel(
+            Long channelInviteId
+    ) {
+        final var channelInvite =
+            this.channelInviteRepository.findById(channelInviteId).orElseThrow(
+                NotFoundChannelInviteException::new
+            );
+
+        return new GetInviteChannelDetailDto.GetInviteChannelDetailRes(
+            channelInvite.getId(),
+            channelInvite.getInvitedChannelId(),
+            channelInvite.getInvitedUserId(),
+            channelInvite.getStatus()
+        );
     }
 }

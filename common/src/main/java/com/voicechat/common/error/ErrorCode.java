@@ -15,7 +15,10 @@ public enum ErrorCode {
     // Channel
     FULL_CHANNEL(HttpStatus.CONFLICT, "CH001", "The channel is full"),
     ALREADY_USER_OF_CHANNEL(HttpStatus.CONFLICT, "CH002", "The user is already a member of the channel"),
-    ALREADY_CHANNEL_INVITED_USER(HttpStatus.CONFLICT, "CH003", "The user is already a invited of the channel")
+    ALREADY_CHANNEL_INVITED_USER(HttpStatus.CONFLICT, "CH003", "The user is already a invited of the channel"),
+
+    // Channel Invite
+    ENTITY_NOT_FOUND_CHANNEL_INVITE(HttpStatus.CONFLICT, "CH_IV_001", "Entity Not Found")
     ;
 
     private final String code;

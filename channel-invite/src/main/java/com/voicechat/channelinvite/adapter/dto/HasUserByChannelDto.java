@@ -1,4 +1,4 @@
-package com.voicechat.channelinvite.adapter.channel.dto;
+package com.voicechat.channelinvite.adapter.dto;
 
 import jakarta.validation.constraints.NotNull;
 

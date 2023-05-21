@@ -47,4 +47,21 @@ public class ChannelController {
     ) {
         return new HasUserByChannelDto.HasUserByChannelResDto(this.channelService.hasUserByChannel(channelId, userId));
     }
+
+    @PostMapping("{channelId}/channel-member/{userId}")
+    public void addChannelMember(
+        @PathVariable("channelId") Long channelId,
+        @PathVariable("userId") Long userId
+    ) {
+//        this.channelService.createChannel(userId, createChannelDtoReq);
+        this.channelService.addChannelMember(channelId, userId);
+    }
+
+    @DeleteMapping("{channelId}/channel-member/{userId}")
+    public void removeChannelMember(
+            @PathVariable("channelId") Long channelId,
+            @PathVariable("userId") Long userId
+    ) {
+        this.channelService.removeChannelMember(channelId, userId);
+    }
 }

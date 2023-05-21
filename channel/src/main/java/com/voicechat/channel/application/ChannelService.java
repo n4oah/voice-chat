@@ -50,9 +50,26 @@ public class ChannelService {
                 .isPresent();
     }
 
+    @Transactional(readOnly = true)
     public GetChannelDetailDto.GetChannelDetailResDto getChannelDetail(Long channelId) {
         return this.channelRepository.findById(channelId).map((channel -> new GetChannelDetailDto.GetChannelDetailResDto(
                 channel.getId(), channel.getName(), channel.getMaxNumberOfMember()
         ))).orElseThrow(NotFoundChannelException::new);
+    }
+
+    public void addChannelMember(Long channelId, Long userId) {
+        final var channel = this.channelRepository.findById(channelId).orElseThrow(
+                NotFoundChannelException::new
+        );
+
+        channel.addChannelMember(userId, this.channelMemberAuthRoleRepository);
+    }
+
+    public void removeChannelMember(Long channelId, Long userId) {
+        final var channel = this.channelRepository.findById(channelId).orElseThrow(
+                NotFoundChannelException::new
+        );
+
+        channel.removeChannelMember(userId);
     }
 }

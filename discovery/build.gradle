@@ -1,6 +1,6 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-server', version: '4.0.1'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }

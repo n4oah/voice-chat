@@ -3,9 +3,9 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-gateway', version: '4.0.1'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '4.0.1'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '4.0.1'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'

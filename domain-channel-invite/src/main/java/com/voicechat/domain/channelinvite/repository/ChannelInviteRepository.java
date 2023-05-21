@@ -1,6 +1,6 @@
 package com.voicechat.domain.channelinvite.repository;
 
-import com.voicechat.domain.channelinvite.constants.ChannelInviteStatus;
+import com.voicechat.common.constant.ChannelInviteStatus;
 import com.voicechat.domain.channelinvite.entity.ChannelInvite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

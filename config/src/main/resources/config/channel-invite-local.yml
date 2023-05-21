@@ -1,5 +1,3 @@
-jwt:
-  secretKey: ${JWT_SECRET_KEY:asoidfjaosidfjoij2134io1iqjoiasj}
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/channel_invite
@@ -14,3 +12,5 @@ spring:
   sql:
     init:
       mode: never
+kafka:
+  host: localhost:9092

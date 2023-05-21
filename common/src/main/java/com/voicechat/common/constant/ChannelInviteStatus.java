@@ -1,4 +1,4 @@
-package com.voicechat.domain.channelinvite.constants;
+package com.voicechat.common.constant;
 
 public enum ChannelInviteStatus {
     WAITED("WAITED"),

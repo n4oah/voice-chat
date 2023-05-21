@@ -1,8 +1,9 @@
 package com.voicechat.domain.channelinvite.entity;
 
+import com.voicechat.common.constant.ChannelInviteStatus;
 import com.voicechat.common.domain.AbstractAuditingEntity;
 import com.voicechat.common.event.Events;
-import com.voicechat.domain.channelinvite.constants.ChannelInviteStatus;
+import com.voicechat.domain.channelinvite.event.ApprovedChannelInviteEvent;
 import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,5 +38,17 @@ public class ChannelInvite extends AbstractAuditingEntity {
         channelInvite.status = ChannelInviteStatus.WAITED;
 
         return channelInvite;
+    }
+
+    public void approveInvitedChannel(ChannelInviteChecker channelInviteChecker) {
+        channelInviteChecker.verifyCreateChannelInvite(this.getInvitedChannelId(), this.getInvitedUserId());
+
+        this.status = ChannelInviteStatus.ACCEPTED;
+
+        Events.raise(new ApprovedChannelInviteEvent(this.id));
+    }
+
+    public void rejectInvitedChannel() {
+        this.status = ChannelInviteStatus.REJECTED;
     }
 }

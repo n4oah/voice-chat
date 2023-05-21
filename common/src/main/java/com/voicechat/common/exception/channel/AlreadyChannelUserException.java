@@ -1,4 +1,4 @@
-package com.voicechat.domain.channelinvite.exception;
+package com.voicechat.common.exception.channel;
 
 import com.voicechat.common.error.ErrorCode;
 import com.voicechat.common.error.exception.BusinessException;
