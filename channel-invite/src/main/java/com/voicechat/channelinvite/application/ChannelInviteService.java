@@ -66,6 +66,18 @@ public class ChannelInviteService {
         this.channelInviteRepository.save(channelInvite);
     }
 
+    public void refuseInvitedChannel(Long invitedUserId, Long invitedChannelId) {
+        final var channelInvite = this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
+                invitedChannelId,
+                invitedUserId,
+                ChannelInviteStatus.WAITED
+        ).orElseThrow(NotFoundChannelInviteException::new);
+
+        channelInvite.refuseInvitedChannel();
+
+        this.channelInviteRepository.save(channelInvite);
+    }
+
     public void rejectChannelInvite(Long channelInviteId) {
         this.channelInviteRepository.findById(channelInviteId)
                 .ifPresent(ChannelInvite::rejectInvitedChannel);

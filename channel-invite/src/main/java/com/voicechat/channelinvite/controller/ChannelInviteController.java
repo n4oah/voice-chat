@@ -34,6 +34,14 @@ public class ChannelInviteController {
         channelInviteService.approveInvitedChannel(userId, channelInviteId);
     }
 
+    @PatchMapping("/me/{channelInviteId}/refuse")
+    public void refuseInvitedChannel(
+            @RequestHeader(HeaderKey.USER_ID) final Long userId,
+            @PathVariable("channelInviteId") final Long channelInviteId
+    ) {
+        channelInviteService.refuseInvitedChannel(userId, channelInviteId);
+    }
+
     @GetMapping("{channelInviteId}")
     public GetInviteChannelDetailDto.GetInviteChannelDetailRes getChannelInvite(@PathVariable("channelInviteId") Long channelInviteId) {
         return channelInviteService.getInviteChannel(channelInviteId);
