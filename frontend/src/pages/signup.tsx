@@ -1,37 +1,25 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { UseSigninApi } from '../hooks/http/useSigninApi';
-import { useSignin } from '../hooks/useSignin';
+import { UseSignupApi } from '../hooks/http/useSignupApi';
 import { useRouter } from 'next/router';
 
-function SigninPage() {
+function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
   const router = useRouter();
 
-  const { signin } = useSignin();
+  const signup = UseSignupApi.useMutate({
+    onSuccess: () => {
+      alert('회원가입 완료');
 
-  const useSinginApi = UseSigninApi.useMutate({
-    onSuccess: (response) => {
-      alert('로그인 성공');
-
-      signin(response.data.accessToken);
+      router.push('/signin');
     },
   });
 
-  function onClickSignin() {
-    if (!email) {
-      alert('이메일 입력');
-      return;
-    }
-
-    if (!password) {
-      alert('비밀번호 입력');
-      return;
-    }
-
-    useSinginApi.mutate({ email, password });
+  function onClickSignup() {
+    signup.mutate({ email, name, password });
   }
 
   return (
@@ -45,7 +33,7 @@ function SigninPage() {
         gap: '30px',
       }}
     >
-      <Typography variant="h5">Voice Chat - 로그인</Typography>
+      <Typography variant="h5">Voice Chat - 회원가입</Typography>
       <Box
         component="form"
         autoComplete="off"
@@ -63,17 +51,16 @@ function SigninPage() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => onClickSignin()}
-        >
-          로그인
-        </Button>
+        <TextField
+          placeholder="이름"
+          type="text"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
         <Button
           variant="outlined"
           color="secondary"
-          onClick={() => router.push('/signup')}
+          onClick={() => onClickSignup()}
         >
           회원가입
         </Button>
@@ -82,4 +69,4 @@ function SigninPage() {
   );
 }
 
-export default SigninPage;
+export default SignupPage;
