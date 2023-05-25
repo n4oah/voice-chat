@@ -1,6 +1,17 @@
 spring:
   cloud:
     gateway:
+      globalCors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: '*'
+            allowedMethods:
+              - GET
+              - POST
+              - PATCH
+              - PUT
+              - OPTIONS
       routes:
         - id: user-not-auth
           uri: lb://user
