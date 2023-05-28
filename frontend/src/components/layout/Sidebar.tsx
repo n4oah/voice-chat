@@ -1,12 +1,48 @@
-import { List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { grey } from '@mui/material/colors';
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
+import { grey, teal } from '@mui/material/colors';
+import { useEffect, useState } from 'react';
+import { UseMyChannelsApi } from '../../hooks/http/useMyChannels';
+import Link from 'next/link';
+import AddIcon from '@mui/icons-material/Add';
+
+type SidebarChannel = {
+  type: 'channel';
+  channelId: number;
+  name: string;
+};
 
 export function Sidebar() {
+  const [sidebarMenus, setSidebarMenu] = useState<SidebarChannel[]>([]);
+  const myChannels = UseMyChannelsApi.useFetch();
+
+  useEffect(() => {
+    if (myChannels.data) {
+      setSidebarMenu(
+        myChannels.data.channels.map((channel) => ({
+          type: 'channel' as const,
+          channelId: channel.id,
+          name: channel.name,
+          key: channel.id,
+        })),
+      );
+    }
+  }, [myChannels.data]);
+
+  function onClickAddChannel() {
+    //
+  }
+
   return (
     <section>
       <List style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {['Home', '방1', 'asdfsadfijasdf'].map((text, index) => (
-          <ListItem key={index} disablePadding>
+        <ListItem disablePadding>
+          <Link href={'/'}>
             <ListItemButton
               style={{
                 padding: 0,
@@ -17,12 +53,59 @@ export function Sidebar() {
                 height: '60px',
                 textAlign: 'center',
                 overflow: 'hidden',
+                justifyContent: 'center',
               }}
             >
-              <ListItemText primary={text} />
+              <ListItemText primary={'홈'} />
             </ListItemButton>
+          </Link>
+        </ListItem>
+        {sidebarMenus.map((sidebarMenu) => (
+          <ListItem key={sidebarMenu.channelId} disablePadding>
+            <Link href={'/'}>
+              <ListItemButton
+                style={{
+                  padding: 0,
+                  backgroundColor: grey[500],
+                  borderRadius: '50%',
+                  minWidth: '60px',
+                  width: '60px',
+                  height: '60px',
+                  textAlign: 'center',
+                  overflow: 'hidden',
+                  justifyContent: 'center',
+                }}
+              >
+                <ListItemText primary={sidebarMenu.name} />
+              </ListItemButton>
+            </Link>
           </ListItem>
         ))}
+        <ListItem disablePadding>
+          <ListItemButton
+            style={{
+              padding: 0,
+              backgroundColor: grey[500],
+              borderRadius: '50%',
+              minWidth: '60px',
+              width: '60px',
+              height: '60px',
+              textAlign: 'center',
+              overflow: 'hidden',
+              justifyContent: 'center',
+            }}
+            onClick={() => onClickAddChannel()}
+          >
+            <ListItemIcon
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AddIcon fontSize={'large'} htmlColor={teal[500]} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
       </List>
     </section>
   );

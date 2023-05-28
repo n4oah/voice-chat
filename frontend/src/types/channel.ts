@@ -1,0 +1,5 @@
+export enum ChannelMemberRole {
+  MEMBER = 'MEMBER',
+  ASSISTANT_MANAGER = 'ASSISTANT_MANAGER',
+  MANAGER = 'MANAGER',
+}
