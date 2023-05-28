@@ -1,10 +1,7 @@
 package com.voicechat.channel.controller;
 
 import com.voicechat.channel.application.ChannelService;
-import com.voicechat.channel.dto.CreateChannelDto;
-import com.voicechat.channel.dto.GetChannelDetailDto;
-import com.voicechat.channel.dto.HasUserByChannelDto;
-import com.voicechat.channel.dto.IsFullChannelDto;
+import com.voicechat.channel.dto.*;
 import com.voicechat.common.constant.HeaderKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +50,6 @@ public class ChannelController {
         @PathVariable("channelId") Long channelId,
         @PathVariable("userId") Long userId
     ) {
-//        this.channelService.createChannel(userId, createChannelDtoReq);
         this.channelService.addChannelMember(channelId, userId);
     }
 
@@ -63,5 +59,12 @@ public class ChannelController {
             @PathVariable("userId") Long userId
     ) {
         this.channelService.removeChannelMember(channelId, userId);
+    }
+
+    @GetMapping("/me")
+    public GetChannelListDto.GetChannelListResDto getMyChannels(
+        @RequestHeader(HeaderKey.USER_ID) final Long userId
+    ) {
+        return this.channelService.getChannelsByUserId(userId);
     }
 }

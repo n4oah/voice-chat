@@ -2,14 +2,19 @@ package com.voicechat.channel.application;
 
 import com.voicechat.channel.dto.CreateChannelDto;
 import com.voicechat.channel.dto.GetChannelDetailDto;
+import com.voicechat.channel.dto.GetChannelListDto;
 import com.voicechat.channel.exception.NotFoundChannelException;
 import com.voicechat.domain.channel.entity.Channel;
+import com.voicechat.domain.channel.entity.ChannelMember;
 import com.voicechat.domain.channel.repository.ChannelMemberAuthRoleRepository;
 import com.voicechat.domain.channel.repository.ChannelMemberRepository;
 import com.voicechat.domain.channel.repository.ChannelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,5 +76,19 @@ public class ChannelService {
         );
 
         channel.removeChannelMember(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public GetChannelListDto.GetChannelListResDto getChannelsByUserId(Long userId) {
+        List<ChannelMember> channelMembers = this.channelMemberRepository.findByUserId(userId);
+
+        return new GetChannelListDto.GetChannelListResDto(channelMembers.stream().map((channelMember) ->
+            new GetChannelDetailDto.GetMyChannelDetailResDto(
+                channelMember.getChannel().getId(),
+                channelMember.getChannel().getName(),
+                channelMember.getChannel().getMaxNumberOfMember(),
+                channelMember.getAuthorities().stream().map((a) -> a.getName()).collect(Collectors.toList())
+            )
+        ).collect(Collectors.toList()));
     }
 }
