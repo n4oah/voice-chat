@@ -19,7 +19,7 @@ export function withOnlyLoggingPage(Component: React.ComponentType) {
         setAuth(isAuth);
 
         if (!isAuth) {
-          alert('접근 권한이 없습니다.');
+          // alert('접근 권한이 없습니다.');
           router.replace(`/signin`);
         }
       }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { UseSigninApi } from '../hooks/http/useSigninApi';
 import { useSignin } from '../hooks/useSignin';
 import { useRouter } from 'next/router';
+import { HttpStatusCode } from 'axios';
 
 function SigninPage() {
   const [email, setEmail] = useState('');
@@ -18,9 +19,16 @@ function SigninPage() {
 
       signin(response.data.accessToken);
     },
+    onError: (error) => {
+      if (error.response?.status === HttpStatusCode.Unauthorized) {
+        alert('이메일 혹은 비밀번호가 맞지 않습니다.');
+        return;
+      }
+      throw error;
+    },
   });
 
-  function onClickSignin() {
+  const onClickSignin = () => {
     if (!email) {
       alert('이메일 입력');
       return;
@@ -32,7 +40,7 @@ function SigninPage() {
     }
 
     useSinginApi.mutate({ email, password });
-  }
+  };
 
   return (
     <div
