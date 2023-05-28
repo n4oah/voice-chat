@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { UseCreateChannelApi } from '../../hooks/http/useCreateChannelApi';
+import { UseFetchMyChannelInviteApi } from '../../hooks/http/useFetchMyChannelInviteApi';
 
 type Props = {
   isOpen?: boolean;
@@ -59,7 +60,12 @@ export function AddChannelModal({
             >
               <Typography fontWeight={'700'}>서버 생성하기</Typography>
             </Button>
-            <Button size="large" color="primary" variant="outlined">
+            <Button
+              size="large"
+              color="primary"
+              variant="outlined"
+              onClick={() => setStep('invite-list')}
+            >
               <Typography fontWeight={'700'}>초대 리스트 확인</Typography>
             </Button>
           </Box>
@@ -67,7 +73,7 @@ export function AddChannelModal({
       case 'create':
         return <CreateChannelForm handleClose={handleClose} />;
       case 'invite-list':
-        return <ChannelInviteList handleClose={handleClose} />;
+        return <ChannelInviteList />;
     }
   }
 
@@ -175,6 +181,16 @@ function CreateChannelForm({ handleClose }: { handleClose: () => void }) {
   );
 }
 
-function ChannelInviteList({ handleClose }: { handleClose: () => void }) {
-  return <Box></Box>;
+function ChannelInviteList() {
+  const myChannelInvite = UseFetchMyChannelInviteApi.useFetch();
+
+  return (
+    <Box display={'flex'} flexDirection={'column'} width={'100%'} gap={'8px'}>
+      {myChannelInvite.data?.items.map((item) => (
+        <Box key={item.id}>
+          <Typography>{item.channelName}</Typography>
+        </Box>
+      ))}
+    </Box>
+  );
 }
