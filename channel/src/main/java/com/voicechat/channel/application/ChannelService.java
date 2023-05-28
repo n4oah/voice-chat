@@ -91,4 +91,19 @@ public class ChannelService {
             )
         ).collect(Collectors.toList()));
     }
+
+    @Transactional(readOnly = true)
+    public GetChannelDetailDto.GetMyChannelDetailResDto getChannelByUserId(Long channelId, Long userId) {
+        final var channel = this.channelRepository.findById(channelId).orElseThrow(NotFoundChannelException::new);
+
+        ChannelMember channelMember = this.channelMemberRepository.findByChannelAndUserId(channel, userId)
+                .orElseThrow(NotFoundChannelException::new);
+
+        return new GetChannelDetailDto.GetMyChannelDetailResDto(
+                channelMember.getChannel().getId(),
+                channelMember.getChannel().getName(),
+                channelMember.getChannel().getMaxNumberOfMember(),
+                channelMember.getAuthorities().stream().map((a) -> a.getName()).collect(Collectors.toList())
+        );
+    }
 }

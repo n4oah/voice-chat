@@ -56,7 +56,6 @@ public class AuthFilterGatewayFilterFactory
             final String accessToken = authorization.replace("Bearer ", "");
 
             return this.userServiceClient.authJwtDecodeToUser(new UserAuthJwtDecodeDto.UserAuthJwtDecodeReqDto(accessToken))
-//                            .flatMap((accountAuthJwtDecodeResDto) -> Mono.just(accountAuthJwtDecodeResDto))
                             .map((accountAuthJwtDecodeResDto -> {
                                 exchange.getRequest()
                                         .mutate()

@@ -26,16 +26,16 @@ public class ChannelInviteService {
     private final ChannelInviteRepository channelInviteRepository;
     private final ChannelServiceClient channelServiceClient;
 
-    public void inviteChannel(@RequestBody @Valid InviteChannelDto.InviteChannelReqDto inviteChannelReqDto) {
+    public void inviteChannel(Long channelId, Long userId) {
 
         if (this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
-                inviteChannelReqDto.channelId(), inviteChannelReqDto.userId(), ChannelInviteStatus.WAITED).isPresent()) {
+                channelId, userId, ChannelInviteStatus.WAITED).isPresent()) {
             throw new AlreadyChannelInviteUserException();
         }
 
         final var channelInvite =
                 ChannelInvite.inviteChannel(
-                        inviteChannelReqDto.channelId(), inviteChannelReqDto.userId(), channelInviteChecker
+                        channelId, userId, channelInviteChecker
                 );
 
         this.channelInviteRepository.save(channelInvite);
@@ -54,9 +54,9 @@ public class ChannelInviteService {
         ).collect(Collectors.toUnmodifiableList()));
     }
 
-    public void approveInvitedChannel(Long invitedUserId, Long invitedChannelId) {
-        final var channelInvite = this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
-            invitedChannelId,
+    public void approveInvitedChannel(Long invitedUserId, Long channelInviteId) {
+        final var channelInvite = this.channelInviteRepository.findByIdAndInvitedUserIdAndStatus(
+                channelInviteId,
             invitedUserId,
             ChannelInviteStatus.WAITED
         ).orElseThrow(NotFoundChannelInviteException::new);
@@ -66,9 +66,9 @@ public class ChannelInviteService {
         this.channelInviteRepository.save(channelInvite);
     }
 
-    public void refuseInvitedChannel(Long invitedUserId, Long invitedChannelId) {
-        final var channelInvite = this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
-                invitedChannelId,
+    public void refuseInvitedChannel(Long invitedUserId, Long channelInviteId) {
+        final var channelInvite = this.channelInviteRepository.findByIdAndInvitedUserIdAndStatus(
+                channelInviteId,
                 invitedUserId,
                 ChannelInviteStatus.WAITED
         ).orElseThrow(NotFoundChannelInviteException::new);

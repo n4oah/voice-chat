@@ -7,10 +7,7 @@ public class InviteChannelDto {
     public record InviteChannelReqDto(
             @NotNull
             @Positive
-            Long userId,
-            @NotNull
-            @Positive
-            Long channelId
+            Long userId
     ) {
 
     }

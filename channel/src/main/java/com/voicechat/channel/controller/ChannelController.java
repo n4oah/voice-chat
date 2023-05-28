@@ -67,4 +67,12 @@ public class ChannelController {
     ) {
         return this.channelService.getChannelsByUserId(userId);
     }
+
+    @GetMapping("/me/{channelId}")
+    public GetChannelDetailDto.GetMyChannelDetailResDto getMyChannel(
+            @RequestHeader(HeaderKey.USER_ID) final Long userId,
+            @PathVariable("channelId") final Long channelId
+    ) {
+        return this.channelService.getChannelByUserId(channelId, userId);
+    }
 }

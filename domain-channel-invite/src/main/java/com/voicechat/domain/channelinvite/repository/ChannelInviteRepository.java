@@ -15,6 +15,11 @@ public interface ChannelInviteRepository extends JpaRepository<ChannelInvite, Lo
             Long invitedUserId,
             ChannelInviteStatus status
     );
+    Optional<ChannelInvite> findByIdAndInvitedUserIdAndStatus(
+            Long id,
+            Long invitedUserId,
+            ChannelInviteStatus status
+    );
 
     List<ChannelInvite> findByInvitedUserIdAndStatus(Long invitedUserId, ChannelInviteStatus status);
 }

@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class ChannelInviteController {
     private final ChannelInviteService channelInviteService;
 
-    @PostMapping("/")
-    public void inviteChannel(@RequestBody @Valid InviteChannelDto.InviteChannelReqDto inviteChannelReqDto) {
-        this.channelInviteService.inviteChannel(inviteChannelReqDto);
+    @PostMapping("/channel/{channelId}/")
+    public void inviteChannel(
+            @RequestBody @Valid InviteChannelDto.InviteChannelReqDto inviteChannelReqDto,
+            @PathVariable("channelId") Long channelId
+    ) {
+        System.out.println("channelId" + channelId);
+        this.channelInviteService.inviteChannel(channelId, inviteChannelReqDto.userId());
     }
 
     @GetMapping("/me")

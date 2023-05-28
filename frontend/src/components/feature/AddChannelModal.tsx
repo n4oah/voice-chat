@@ -191,6 +191,10 @@ function ChannelInviteList() {
           <Typography>{item.channelName}</Typography>
         </Box>
       ))}
+      {!myChannelInvite.data?.items ||
+        (!myChannelInvite.data.items.length && (
+          <Typography>초대된 채널이 없습니다.</Typography>
+        ))}
     </Box>
   );
 }
