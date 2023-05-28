@@ -58,6 +58,12 @@ function SigninPage() {
         component="form"
         autoComplete="off"
         style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+        onSubmit={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+
+          onClickSignin();
+        }}
       >
         <TextField
           placeholder="이메일 입력"
@@ -71,17 +77,14 @@ function SigninPage() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => onClickSignin()}
-        >
+        <Button variant="contained" color="success" type="submit">
           로그인
         </Button>
         <Button
           variant="outlined"
           color="secondary"
           onClick={() => router.push('/signup')}
+          type="button"
         >
           회원가입
         </Button>

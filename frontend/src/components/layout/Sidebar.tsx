@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { UseMyChannelsApi } from '../../hooks/http/useMyChannels';
 import Link from 'next/link';
 import AddIcon from '@mui/icons-material/Add';
+import { AddChannelModal } from '../feature/AddChannelModal';
 
 type SidebarChannel = {
   type: 'channel';
@@ -20,6 +21,7 @@ type SidebarChannel = {
 export function Sidebar() {
   const [sidebarMenus, setSidebarMenu] = useState<SidebarChannel[]>([]);
   const myChannels = UseMyChannelsApi.useFetch();
+  const [isOpenAddChannelModal, setOpenAddChannelModal] = useState(false);
 
   useEffect(() => {
     if (myChannels.data) {
@@ -35,11 +37,15 @@ export function Sidebar() {
   }, [myChannels.data]);
 
   function onClickAddChannel() {
-    //
+    setOpenAddChannelModal(true);
   }
 
   return (
     <section>
+      <AddChannelModal
+        isOpen={isOpenAddChannelModal}
+        handleClose={() => setOpenAddChannelModal(false)}
+      />
       <List style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <ListItem disablePadding>
           <Link href={'/'}>

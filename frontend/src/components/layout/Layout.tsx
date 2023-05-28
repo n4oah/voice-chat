@@ -7,7 +7,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Container
       maxWidth="sm"
-      style={{ minHeight: '100vh', display: 'flex', flexDirection: 'row' }}
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+        padding: '0',
+      }}
     >
       <Box>
         <Box
