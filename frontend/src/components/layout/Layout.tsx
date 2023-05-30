@@ -9,9 +9,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       maxWidth="sm"
       style={{
         minHeight: '100vh',
+        maxHeight: '100vh',
         display: 'flex',
         flexDirection: 'row',
         padding: '0',
+        overflow: 'hidden',
       }}
     >
       <Box>
@@ -26,9 +28,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Sidebar />
         </Box>
       </Box>
-      <Box flexGrow={1}>
+      <Box display={'flex'} flexDirection={'column'} width={'100%'}>
         <Header />
-        <main style={{ overflowY: 'auto' }}>{children}</main>
+        <main
+          style={{
+            overflowY: 'auto',
+            height: '100%',
+            flex: 1,
+          }}
+        >
+          {children}
+        </main>
       </Box>
     </Container>
   );

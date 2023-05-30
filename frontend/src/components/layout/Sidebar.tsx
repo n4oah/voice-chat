@@ -5,12 +5,14 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import { grey, teal } from '@mui/material/colors';
+import { deepPurple, grey, teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { UseMyChannelsApi } from '../../hooks/http/useMyChannels';
 import Link from 'next/link';
 import AddIcon from '@mui/icons-material/Add';
 import { AddChannelModal } from '../feature/AddChannelModal';
+import { useRouter } from 'next/router';
+import styled from '@emotion/styled';
 
 type SidebarChannel = {
   type: 'channel';
@@ -18,10 +20,26 @@ type SidebarChannel = {
   name: string;
 };
 
+const ChannelButton = styled(ListItemButton)(
+  ({ active = false }: { active?: boolean }) => ({
+    padding: 0,
+    backgroundColor: active ? deepPurple[900] : grey[500],
+    color: active ? 'white' : 'black',
+    borderRadius: '50%',
+    minWidth: '60px',
+    width: '60px',
+    height: '60px',
+    textAlign: 'center',
+    overflow: 'hidden',
+    justifyContent: 'center',
+  }),
+);
+
 export function Sidebar() {
   const [sidebarMenus, setSidebarMenu] = useState<SidebarChannel[]>([]);
   const myChannels = UseMyChannelsApi.useFetch();
   const [isOpenAddChannelModal, setOpenAddChannelModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (myChannels.data) {
@@ -40,6 +58,8 @@ export function Sidebar() {
     setOpenAddChannelModal(true);
   }
 
+  console.log('router', router);
+
   return (
     <section>
       <AddChannelModal
@@ -49,59 +69,24 @@ export function Sidebar() {
       <List style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <ListItem disablePadding>
           <Link href={'/'}>
-            <ListItemButton
-              style={{
-                padding: 0,
-                backgroundColor: grey[500],
-                borderRadius: '50%',
-                minWidth: '60px',
-                width: '60px',
-                height: '60px',
-                textAlign: 'center',
-                overflow: 'hidden',
-                justifyContent: 'center',
-              }}
-            >
+            <ChannelButton active={router.asPath === '/'}>
               <ListItemText primary={'홈'} />
-            </ListItemButton>
+            </ChannelButton>
           </Link>
         </ListItem>
         {sidebarMenus.map((sidebarMenu) => (
           <ListItem key={sidebarMenu.channelId} disablePadding>
-            <Link href={'/'}>
-              <ListItemButton
-                style={{
-                  padding: 0,
-                  backgroundColor: grey[500],
-                  borderRadius: '50%',
-                  minWidth: '60px',
-                  width: '60px',
-                  height: '60px',
-                  textAlign: 'center',
-                  overflow: 'hidden',
-                  justifyContent: 'center',
-                }}
+            <Link href={`/channel/${sidebarMenu.channelId}`}>
+              <ChannelButton
+                active={router.asPath === `/channel/${sidebarMenu.channelId}`}
               >
                 <ListItemText primary={sidebarMenu.name} />
-              </ListItemButton>
+              </ChannelButton>
             </Link>
           </ListItem>
         ))}
         <ListItem disablePadding>
-          <ListItemButton
-            style={{
-              padding: 0,
-              backgroundColor: grey[500],
-              borderRadius: '50%',
-              minWidth: '60px',
-              width: '60px',
-              height: '60px',
-              textAlign: 'center',
-              overflow: 'hidden',
-              justifyContent: 'center',
-            }}
-            onClick={() => onClickAddChannel()}
-          >
+          <ChannelButton onClick={() => onClickAddChannel()}>
             <ListItemIcon
               style={{
                 alignItems: 'center',
@@ -110,7 +95,7 @@ export function Sidebar() {
             >
               <AddIcon fontSize={'large'} htmlColor={teal[500]} />
             </ListItemIcon>
-          </ListItemButton>
+          </ChannelButton>
         </ListItem>
       </List>
     </section>
