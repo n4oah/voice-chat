@@ -1,11 +1,36 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { Layout } from '../../components/layout/Layout';
 import { withOnlyLoggingPage } from '../../hoc/withOnlyLoggingPage';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
+import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { Type, plainToClass } from 'class-transformer';
+
+class RouterQuery {
+  @Type(() => Number)
+  channelId!: number;
+}
 
 function ChannelPage() {
+  const [isShowChannelInivteModal, setShowChannelInivteModal] = useState(false);
+  const router = useRouter();
+
+  const { channelId } = plainToClass(RouterQuery, router.query);
+
+  function onClickChannelInviteBtn() {
+    setShowChannelInivteModal(true);
+  }
+
   return (
     <Layout>
+      {isShowChannelInivteModal && (
+        <ChannelInviteModal
+          isOpen={isShowChannelInivteModal}
+          handleClose={() => setShowChannelInivteModal(false)}
+          channelId={channelId}
+        />
+      )}
       <Box
         display={'flex'}
         flexDirection={'row'}
@@ -21,6 +46,16 @@ function ChannelPage() {
           padding={'12px'}
           borderRight={'solid black'}
         >
+          <Box>
+            <Typography variant="h6">채널초대</Typography>
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={() => onClickChannelInviteBtn()}
+            >
+              <Typography>초대하기</Typography>
+            </Button>
+          </Box>
           <Box>
             <Box>
               <Box

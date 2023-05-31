@@ -1,5 +1,7 @@
 import { AxiosError, AxiosInstance } from 'axios';
 import {
+  QueryFunctionContext,
+  QueryKey,
   UseQueryOptions,
   useQuery,
   useQueryClient,
@@ -7,7 +9,11 @@ import {
 import { useAxios } from './useAxios';
 import { ChannelInviteStatus } from '../../types/channel-invite';
 
-export namespace UseFetchMyChannelInviteApi {
+export namespace UseFetchMyChannelInviteMembersApi {
+  export type RequestType = {
+    channelId: number;
+  };
+
   export type ResponseType = {
     items: {
       id: number;
@@ -19,14 +25,15 @@ export namespace UseFetchMyChannelInviteApi {
     }[];
   };
 
-  export const KEY_STRING = 'my-channel-invite' as const;
+  export const KEY_STRING = 'my-channel-invite-members' as const;
 
-  type QueryKeyType = [typeof KEY_STRING];
+  type QueryKeyType = [typeof KEY_STRING, RequestType];
+  type TQueryKey = QueryKeyType & QueryKey;
 
   export function featch(axiosInstance: AxiosInstance) {
-    return async () => {
+    return async ({ queryKey }: QueryFunctionContext<TQueryKey>) => {
       const response = await axiosInstance.get<ResponseType>(
-        '/channel-invite/me',
+        `/channel-invite/channel/${queryKey[1].channelId}/`,
       );
       return response.data;
     };
@@ -42,19 +49,22 @@ export namespace UseFetchMyChannelInviteApi {
     return refetch;
   }
 
-  export const useFetch = ({
-    ...args
-  }: UseQueryOptions<
-    ResponseType,
-    AxiosError,
-    ResponseType,
-    QueryKeyType
-  > = {}) => {
+  export const useFetch = (
+    { channelId }: RequestType,
+    {
+      ...args
+    }: UseQueryOptions<
+      ResponseType,
+      AxiosError,
+      ResponseType,
+      QueryKeyType
+    > = {},
+  ) => {
     const { axiosInstance } = useAxios();
 
-    return useQuery([KEY_STRING], featch(axiosInstance), {
+    return useQuery([KEY_STRING, { channelId }], featch(axiosInstance), {
       refetchOnWindowFocus: false,
-      staleTime: 300000,
+      refetchOnMount: true,
       ...args,
     });
   };
