@@ -88,6 +88,11 @@ public class ChannelInviteService {
                 .ifPresent(ChannelInvite::rejectInvitedChannel);
     }
 
+    public void successChannelInvite(Long channelInviteId) {
+        this.channelInviteRepository.findById(channelInviteId)
+                .ifPresent(ChannelInvite::successInvitedChannel);
+    }
+
     @Transactional(readOnly = true)
     public GetInviteChannelDetailDto.GetInviteChannelDetailRes getInviteChannel(
             Long channelInviteId

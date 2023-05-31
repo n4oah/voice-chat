@@ -11,6 +11,7 @@ public class GetInviteChannelDetailDto {
         Long channelId,
         @NotNull
         Long userId,
+        @NotNull
         ChannelInviteStatus status
     ) {
 

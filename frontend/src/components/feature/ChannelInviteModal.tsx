@@ -90,12 +90,6 @@ export function ChannelInviteModal({
                 </Typography>
               </Typography>
             ))}
-            {/* <Typography component="span">
-              n4oahdev@gmail{' '}
-              <Typography component="span" fontSize={'12px'}>
-                [대기]
-              </Typography>
-            </Typography> */}
           </Box>
         </Box>
       </Container>

@@ -36,7 +36,7 @@ public class ChannelInviteController {
         return channelInviteService.getInviteChannelsByUser(userId);
     }
 
-    @PostMapping("/me/{channelInviteId}/approve")
+    @PatchMapping("/me/{channelInviteId}/approve")
     public void approveInvitedChannel(
             @RequestHeader(HeaderKey.USER_ID) final Long userId,
             @PathVariable("channelInviteId") final Long channelInviteId

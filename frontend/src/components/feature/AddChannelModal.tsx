@@ -10,6 +10,9 @@ import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { UseCreateChannelApi } from '../../hooks/http/useCreateChannelApi';
 import { UseFetchMyChannelInviteApi } from '../../hooks/http/useFetchMyChannelInviteApi';
+import { UseApproveChannelInviteApi } from '../../hooks/http/useApproveChannelInviteApi';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 type Props = {
   isOpen?: boolean;
@@ -183,12 +186,26 @@ function CreateChannelForm({ handleClose }: { handleClose: () => void }) {
 
 function ChannelInviteList() {
   const myChannelInvite = UseFetchMyChannelInviteApi.useFetch();
+  const approveChannelInvite = UseApproveChannelInviteApi.useMutate();
+
+  function onClickApproveChannelInvite(channelInviteId: number) {
+    approveChannelInvite.mutate({ channelInviteId });
+  }
 
   return (
     <Box display={'flex'} flexDirection={'column'} width={'100%'} gap={'8px'}>
       {myChannelInvite.data?.items.map((item) => (
         <Box key={item.id}>
           <Typography>{item.channelName}</Typography>
+          <Button
+            size="small"
+            onClick={() => onClickApproveChannelInvite(item.id)}
+          >
+            <AddIcon />
+          </Button>
+          <Button size="small">
+            <RemoveIcon />
+          </Button>
         </Box>
       ))}
       {!myChannelInvite.data?.items ||

@@ -1,8 +1,9 @@
 package com.voicechat.channelinvite.orchestrator.adapter.out;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.voicechat.channelinvite.orchestrator.adapter.out.dto.FailedChannelInviteDto;
+import com.voicechat.channelinvite.orchestrator.adapter.out.dto.ChannelInviteTerminateEventDto;
 
 public interface ChannelInviteOrchestratorServiceKafkaProducer {
-    void failChannelInviteOrchestrator(FailedChannelInviteDto.FailedChannelInviteDtoRes failedChannelInviteDtoRes) throws JsonProcessingException;
+    void channelInviteTerminateOrchestrator(ChannelInviteTerminateEventDto.ChannelInviteTerminateEventDtoRes failedChannelInviteDtoRes)
+            throws JsonProcessingException;
 }

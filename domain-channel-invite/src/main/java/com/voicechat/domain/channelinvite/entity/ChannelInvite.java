@@ -52,6 +52,10 @@ public class ChannelInvite extends AbstractAuditingEntity {
         this.status = ChannelInviteStatus.REJECTED;
     }
 
+    public void successInvitedChannel() {
+        this.status = ChannelInviteStatus.SUCCEED;
+    }
+
     public void refuseInvitedChannel() {
         this.status = ChannelInviteStatus.REFUSED;
     }
