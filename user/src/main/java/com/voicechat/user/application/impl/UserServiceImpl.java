@@ -9,6 +9,7 @@ import com.voicechat.domain.user.repository.UserRepository;
 import com.voicechat.user.application.UserService;
 import com.voicechat.user.component.JwtTokenProvider;
 import com.voicechat.user.dto.AuthJwtDecodeDto;
+import com.voicechat.user.dto.GetUserDto;
 import com.voicechat.user.dto.SignupDto;
 import com.voicechat.user.exception.NotFoundUserException;
 import com.voicechat.user.vo.UserVo;
@@ -60,6 +61,7 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final var user = this.userRepository.findByEmail(username).orElseThrow(NotFoundUserException::new);
@@ -69,6 +71,30 @@ public class UserServiceImpl implements UserService {
                 user.getPassword(),
                 user.getName(),
                 user.getAuthorities().stream().map(UserAuthRole::getName).collect(Collectors.toSet())
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GetUserDto.GetUserResDto getUserById(Long userId) {
+        final var user = this.userRepository.findById(userId).orElseThrow(NotFoundUserException::new);
+
+        return new GetUserDto.GetUserResDto(
+            user.getId(),
+            user.getEmail(),
+            user.getName()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GetUserDto.GetUserResDto getUserByEmail(String email) {
+        final var user = this.userRepository.findByEmail(email).orElseThrow(NotFoundUserException::new);
+
+        return new GetUserDto.GetUserResDto(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
         );
     }
 }

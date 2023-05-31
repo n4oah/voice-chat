@@ -7,7 +7,6 @@ import com.voicechat.channelinvite.dto.InviteChannelDto;
 import com.voicechat.common.constant.HeaderKey;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
@@ -21,13 +20,20 @@ public class ChannelInviteController {
             @RequestBody @Valid InviteChannelDto.InviteChannelReqDto inviteChannelReqDto,
             @PathVariable("channelId") Long channelId
     ) {
-        System.out.println("channelId" + channelId);
-        this.channelInviteService.inviteChannel(channelId, inviteChannelReqDto.userId());
+        this.channelInviteService.inviteChannel(channelId, inviteChannelReqDto.email());
+    }
+
+    // 대기중인 리스트만
+    @GetMapping("/channel/{channelId}/")
+    public GetInviteChannelListDto.GetInviteChannelListResDto getChannelInviteMembersByChannelId(
+            @PathVariable("channelId") Long channelId
+    ) {
+        return this.channelInviteService.getChannelInviteMembersByChannelId(channelId);
     }
 
     @GetMapping("/me")
     public GetInviteChannelListDto.GetInviteChannelListResDto getInviteChannels(@RequestHeader(HeaderKey.USER_ID) final Long userId) {
-        return channelInviteService.getInviteChannels(userId);
+        return channelInviteService.getInviteChannelsByUser(userId);
     }
 
     @PostMapping("/me/{channelInviteId}/approve")

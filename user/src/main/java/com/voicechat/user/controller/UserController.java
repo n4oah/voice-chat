@@ -1,7 +1,9 @@
 package com.voicechat.user.controller;
 
-import com.voicechat.user.application.impl.UserServiceImpl;
+import com.voicechat.common.constant.HeaderKey;
+import com.voicechat.user.application.UserService;
 import com.voicechat.user.dto.AuthJwtDecodeDto;
+import com.voicechat.user.dto.GetUserDto;
 import com.voicechat.user.dto.SigninDto;
 import com.voicechat.user.dto.SignupDto;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public void signup(@Valid() @RequestBody(required = true) final SignupDto.SignupDtoReq signupDtoReq) {
-        this.userServiceImpl.signup(signupDtoReq);
+        this.userService.signup(signupDtoReq);
     }
 
     @PostMapping(
@@ -40,10 +42,24 @@ public class UserController {
     )
     public void signin(@Valid() @RequestBody(required = true) final SigninDto.SigninDtoReq signinDtoReq) {}
 
+    @GetMapping("/me")
+    public GetUserDto.GetUserResDto getMyInfo(
+        @RequestHeader(HeaderKey.USER_ID) Long userId
+    ) {
+        return this.userService.getUserById(userId);
+    }
+
+    @GetMapping("/by-email/{email}")
+    public GetUserDto.GetUserResDto getMyInfoByEmail(
+            @PathVariable String email
+    ) {
+        return this.userService.getUserByEmail(email);
+    }
+
     @GetMapping("/auth/jwt/decode")
     public AuthJwtDecodeDto.AuthJwtDecodeResDto jwtDecode(
             @Valid() AuthJwtDecodeDto.AuthJwtDecodeReqDto authJwtDecodeReqDto
     ) {
-        return this.userServiceImpl.jwtDecode(authJwtDecodeReqDto.getAccessToken());
+        return this.userService.jwtDecode(authJwtDecodeReqDto.getAccessToken());
     }
 }

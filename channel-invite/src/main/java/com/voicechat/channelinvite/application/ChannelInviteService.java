@@ -1,20 +1,18 @@
 package com.voicechat.channelinvite.application;
 
 import com.voicechat.channelinvite.adapter.out.ChannelServiceClient;
+import com.voicechat.channelinvite.adapter.out.UserServiceClient;
 import com.voicechat.channelinvite.dto.GetInviteChannelDetailDto;
 import com.voicechat.channelinvite.dto.GetInviteChannelListDto;
-import com.voicechat.channelinvite.dto.InviteChannelDto;
 import com.voicechat.channelinvite.exception.AlreadyChannelInviteUserException;
 import com.voicechat.channelinvite.exception.NotFoundChannelInviteException;
 import com.voicechat.common.constant.ChannelInviteStatus;
 import com.voicechat.domain.channelinvite.entity.ChannelInvite;
 import com.voicechat.domain.channelinvite.repository.ChannelInviteRepository;
 import com.voicechat.domain.channelinvite.service.ChannelInviteChecker;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.stream.Collectors;
 
@@ -25,31 +23,38 @@ public class ChannelInviteService {
     private final ChannelInviteChecker channelInviteChecker;
     private final ChannelInviteRepository channelInviteRepository;
     private final ChannelServiceClient channelServiceClient;
+    private final UserServiceClient userServiceClient;
 
-    public void inviteChannel(Long channelId, Long userId) {
+    public void inviteChannel(Long channelId, String email) {
+        final var user = this.userServiceClient.getUserInfoByEmail(email).getBody();
 
         if (this.channelInviteRepository.findByInvitedChannelIdAndInvitedUserIdAndStatus(
-                channelId, userId, ChannelInviteStatus.WAITED).isPresent()) {
+                channelId, user.id(), ChannelInviteStatus.WAITED).isPresent()) {
             throw new AlreadyChannelInviteUserException();
         }
 
         final var channelInvite =
                 ChannelInvite.inviteChannel(
-                        channelId, userId, channelInviteChecker
+                        channelId, user.id(), channelInviteChecker
                 );
 
         this.channelInviteRepository.save(channelInvite);
     }
 
     @Transactional(readOnly = true)
-    public GetInviteChannelListDto.GetInviteChannelListResDto getInviteChannels(Long userId) {
+    public GetInviteChannelListDto.GetInviteChannelListResDto getInviteChannelsByUser(Long userId) {
         final var channelInvites = this.channelInviteRepository.findByInvitedUserIdAndStatus(userId, ChannelInviteStatus.WAITED);
+
+        final var user = this.userServiceClient.getUserInfo(userId);
 
         return new GetInviteChannelListDto.GetInviteChannelListResDto(
                 channelInvites.stream().map((channelInvite) -> new GetInviteChannelListDto.GetInviteChannelListResDto.GetInviteChannelListResItemDto(
                     channelInvite.getId(),
                     channelInvite.getInvitedChannelId(),
-                    channelServiceClient.getChannelDetail(channelInvite.getInvitedChannelId()).getBody().name()
+                    channelServiceClient.getChannelDetail(channelInvite.getInvitedChannelId()).getBody().name(),
+                    channelInvite.getStatus(),
+                    channelInvite.getInvitedUserId(),
+                    user.getBody().email()
                 )
         ).collect(Collectors.toUnmodifiableList()));
     }
@@ -83,6 +88,7 @@ public class ChannelInviteService {
                 .ifPresent(ChannelInvite::rejectInvitedChannel);
     }
 
+    @Transactional(readOnly = true)
     public GetInviteChannelDetailDto.GetInviteChannelDetailRes getInviteChannel(
             Long channelInviteId
     ) {
@@ -98,4 +104,24 @@ public class ChannelInviteService {
             channelInvite.getStatus()
         );
     }
+
+    @Transactional(readOnly = true)
+    public GetInviteChannelListDto.GetInviteChannelListResDto getChannelInviteMembersByChannelId(Long channelId) {
+        final var channelInvites =
+                this.channelInviteRepository.findByInvitedChannelIdAndStatus(
+                        channelId, ChannelInviteStatus.WAITED
+        );
+
+        return new GetInviteChannelListDto.GetInviteChannelListResDto(
+                channelInvites.stream().map((channelInvite -> new GetInviteChannelListDto.GetInviteChannelListResDto.GetInviteChannelListResItemDto(
+                    channelInvite.getId(),
+                    channelInvite.getInvitedChannelId(),
+                    channelServiceClient.getChannelDetail(channelInvite.getInvitedChannelId()).getBody().name(),
+                    channelInvite.getStatus(),
+                    channelInvite.getInvitedUserId(),
+                    this.userServiceClient.getUserInfo(channelInvite.getInvitedUserId()).getBody().email()
+            ))).collect(Collectors.toList())
+        );
+    }
+
 }
