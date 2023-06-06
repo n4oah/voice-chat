@@ -13,6 +13,7 @@ import { UseFetchMyChannelInviteApi } from '../../hooks/http/channel-invite/useF
 import { UseApproveChannelInviteApi } from '../../hooks/http/channel-invite/useApproveChannelInviteApi';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { UseRefuseChannelInviteApi } from '../../hooks/http/channel-invite/useApproveChannelInviteApi copy';
 
 type Props = {
   isOpen?: boolean;
@@ -189,9 +190,14 @@ function ChannelInviteList() {
     refetchOnMount: true,
   });
   const approveChannelInvite = UseApproveChannelInviteApi.useMutate();
+  const refuseChannelInviteApi = UseRefuseChannelInviteApi.useMutate();
 
   function onClickApproveChannelInvite(channelInviteId: number) {
     approveChannelInvite.mutate({ channelInviteId });
+  }
+
+  function onClickRefuseChannelInvite(channelInviteId: number) {
+    refuseChannelInviteApi.mutate({ channelInviteId });
   }
 
   return (
@@ -205,7 +211,10 @@ function ChannelInviteList() {
           >
             <AddIcon />
           </Button>
-          <Button size="small">
+          <Button
+            size="small"
+            onClick={() => onClickRefuseChannelInvite(item.id)}
+          >
             <RemoveIcon />
           </Button>
         </Box>
