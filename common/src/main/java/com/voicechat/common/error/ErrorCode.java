@@ -11,6 +11,7 @@ public enum ErrorCode {
 
     // Member
     EMAIL_DUPLICATION(HttpStatus.CONFLICT, "M001", "Email is Duplication"),
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "M002", "Expired Access Token"),
 
     // Channel
     FULL_CHANNEL(HttpStatus.CONFLICT, "CH001", "The channel is full"),

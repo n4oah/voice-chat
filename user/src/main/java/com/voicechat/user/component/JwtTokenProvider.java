@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voicechat.common.vo.UserJwtClaim;
 import com.voicechat.common.vo.IJwtClaim;
+import com.voicechat.user.exception.ExpiredAccessTokenException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +47,16 @@ public class JwtTokenProvider {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        final Claims claims =  Jwts.parserBuilder()
-                .setSigningKey(this.secretKey)
-                .build()
-                .parseClaimsJws(jwtToken)
-                .getBody();
+        try {
+            final Claims claims =  Jwts.parserBuilder()
+                    .setSigningKey(this.secretKey)
+                    .build()
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
 
-        return objectMapper.convertValue(claims, UserJwtClaim.class);
+            return objectMapper.convertValue(claims, UserJwtClaim.class);
+        } catch (ExpiredJwtException exception) {
+            throw new ExpiredAccessTokenException();
+        }
     }
 }
