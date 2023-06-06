@@ -8,9 +8,9 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { UseCreateChannelApi } from '../../hooks/http/useCreateChannelApi';
-import { UseFetchMyChannelInviteApi } from '../../hooks/http/useFetchMyChannelInviteApi';
-import { UseApproveChannelInviteApi } from '../../hooks/http/useApproveChannelInviteApi';
+import { UseCreateChannelApi } from '../../hooks/http/channel/useCreateChannelApi';
+import { UseFetchMyChannelInviteApi } from '../../hooks/http/channel-invite/useFetchMyChannelInviteApi';
+import { UseApproveChannelInviteApi } from '../../hooks/http/channel-invite/useApproveChannelInviteApi';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
@@ -185,7 +185,9 @@ function CreateChannelForm({ handleClose }: { handleClose: () => void }) {
 }
 
 function ChannelInviteList() {
-  const myChannelInvite = UseFetchMyChannelInviteApi.useFetch();
+  const myChannelInvite = UseFetchMyChannelInviteApi.useFetch({
+    refetchOnMount: true,
+  });
   const approveChannelInvite = UseApproveChannelInviteApi.useMutate();
 
   function onClickApproveChannelInvite(channelInviteId: number) {

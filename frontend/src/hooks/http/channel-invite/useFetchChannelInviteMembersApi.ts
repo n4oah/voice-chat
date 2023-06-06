@@ -6,8 +6,8 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useAxios } from './useAxios';
-import { ChannelInviteStatus } from '../../types/channel-invite';
+import { useAxios } from '../useAxios';
+import { ChannelInviteStatus } from '../../../types/channel-invite';
 
 export namespace UseFetchMyChannelInviteMembersApi {
   export type RequestType = {

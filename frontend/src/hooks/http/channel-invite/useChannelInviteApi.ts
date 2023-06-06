@@ -1,26 +1,23 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
-import { useAxios } from './useAxios';
+import { useAxios } from '../useAxios';
 
-export namespace UseApproveChannelInviteApi {
+export namespace UseChannelInviteApi {
   export type ParameterType = {
-    channelInviteId: number;
+    email: string;
+    channelId: number;
   };
 
   export const useMutate = ({
     ...options
-  }: UseMutationOptions<
-    AxiosResponse<ResponseType>,
-    AxiosError,
-    ParameterType
-  > = {}) => {
+  }: UseMutationOptions<AxiosResponse, AxiosError, ParameterType> = {}) => {
     const { axiosInstance } = useAxios();
 
     const mutation = useMutation(
-      ({ channelInviteId }) => {
-        return axiosInstance.patch(
-          `/channel-invite/me/${channelInviteId}/approve`,
-        );
+      ({ email, channelId }) => {
+        return axiosInstance.post(`/channel-invite/channel/${channelId}/`, {
+          email,
+        });
       },
       {
         ...options,

@@ -1,6 +1,6 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
-import { useAxios } from './useAxios';
+import { useAxios } from '../useAxios';
 
 export namespace UseSignupApi {
   export type ParameterType = {

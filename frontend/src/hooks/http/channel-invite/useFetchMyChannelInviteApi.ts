@@ -1,29 +1,33 @@
 import { AxiosError, AxiosInstance } from 'axios';
-import { ChannelMemberRole } from '../../types/channel';
 import {
   UseQueryOptions,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { useAxios } from './useAxios';
+import { useAxios } from '../useAxios';
+import { ChannelInviteStatus } from '../../../types/channel-invite';
 
-export namespace UseMyChannelsApi {
+export namespace UseFetchMyChannelInviteApi {
   export type ResponseType = {
-    channels: {
+    items: {
       id: number;
-      name: string;
-      maxNumberOfMember: number;
-      authRoles: ChannelMemberRole[];
+      channelId: number;
+      channelName: number;
+      status: ChannelInviteStatus;
+      invitedUserId: number;
+      invitedUserEmail: string;
     }[];
   };
 
-  export const KEY_STRING = 'my-channels' as const;
+  export const KEY_STRING = 'my-channel-invite' as const;
 
   type QueryKeyType = [typeof KEY_STRING];
 
   export function featch(axiosInstance: AxiosInstance) {
     return async () => {
-      const response = await axiosInstance.get<ResponseType>('/channel/me');
+      const response = await axiosInstance.get<ResponseType>(
+        '/channel-invite/me',
+      );
       return response.data;
     };
   }

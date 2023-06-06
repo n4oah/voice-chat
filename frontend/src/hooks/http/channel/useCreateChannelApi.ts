@@ -1,11 +1,12 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
-import { useAxios } from './useAxios';
+import { useAxios } from '../useAxios';
+import { UseMyChannelsApi } from './useMyChannels';
 
-export namespace UseSigninApi {
+export namespace UseCreateChannelApi {
   export type ParameterType = {
-    email: string;
-    password: string;
+    name: string;
+    maxNumberOfMember: number;
   };
 
   export type ResponseType = {
@@ -13,6 +14,7 @@ export namespace UseSigninApi {
   };
 
   export const useMutate = ({
+    onSuccess,
     ...options
   }: UseMutationOptions<
     AxiosResponse<ResponseType>,
@@ -20,17 +22,20 @@ export namespace UseSigninApi {
     ParameterType
   > = {}) => {
     const { axiosInstance } = useAxios();
+    const refetchMyChannel = UseMyChannelsApi.useRefetch();
 
     const mutation = useMutation(
-      ({ email, password }) => {
-        const formData = new FormData();
-
-        formData.append('email', email);
-        formData.append('password', password);
-
-        return axiosInstance.post(`/users/signin`, formData);
+      ({ maxNumberOfMember, name }) => {
+        return axiosInstance.post(`/channel/`, {
+          maxNumberOfMember,
+          name,
+        });
       },
       {
+        onSuccess(...args) {
+          refetchMyChannel();
+          onSuccess?.(...args);
+        },
         ...options,
       },
     );

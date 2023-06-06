@@ -1,6 +1,6 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { UseSignupApi } from '../hooks/http/useSignupApi';
+import { UseSignupApi } from '../hooks/http/user/useSignupApi';
 import { useRouter } from 'next/router';
 
 function SignupPage() {

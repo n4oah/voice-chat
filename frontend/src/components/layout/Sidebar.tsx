@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { deepPurple, grey, teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
-import { UseMyChannelsApi } from '../../hooks/http/useMyChannels';
+import { UseMyChannelsApi } from '../../hooks/http/channel/useMyChannels';
 import Link from 'next/link';
 import AddIcon from '@mui/icons-material/Add';
 import { AddChannelModal } from '../feature/AddChannelModal';

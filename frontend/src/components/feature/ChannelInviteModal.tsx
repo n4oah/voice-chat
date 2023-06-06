@@ -7,8 +7,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { UseFetchMyChannelInviteMembersApi } from '../../hooks/http/useFetchChannelInviteMembersApi';
-import { UseChannelInviteApi } from '../../hooks/http/useChannelInviteApi';
+import { UseFetchMyChannelInviteMembersApi } from '../../hooks/http/channel-invite/useFetchChannelInviteMembersApi';
+import { UseChannelInviteApi } from '../../hooks/http/channel-invite/useChannelInviteApi';
 
 type Props = {
   isOpen?: boolean;
