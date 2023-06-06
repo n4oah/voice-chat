@@ -58,8 +58,6 @@ export function Sidebar() {
     setOpenAddChannelModal(true);
   }
 
-  console.log('router', router);
-
   return (
     <section>
       <AddChannelModal

@@ -6,6 +6,7 @@ import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Type, plainToClass } from 'class-transformer';
+import { withChannelPage } from '../../hoc/withChannelPage';
 
 class RouterQuery {
   @Type(() => Number)
@@ -160,4 +161,4 @@ function ChannelPage() {
   );
 }
 
-export default withOnlyLoggingPage(ChannelPage);
+export default withOnlyLoggingPage(withChannelPage(ChannelPage));
