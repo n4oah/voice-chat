@@ -6,6 +6,7 @@ spring:
           '[/**]':
             allowedOrigins: "http://localhost:3000"
             allowedHeaders: '*'
+            allowCredentials: true
             allowedMethods:
               - GET
               - POST
@@ -45,6 +46,23 @@ spring:
                 channelMemberRoles:
                   - MANAGER
                   - ASSISTANT_MANAGER
+        - id: chat-service-CHANNEL-MEMBER
+          uri: lb://chat
+          predicates:
+            - Path=/chat/channel/{channelId}/**
+          filters:
+            - RewritePath=/chat(?<segment>/?.*), $\{segment}
+            - AuthFilter
+            - name: ChannelAuthFilter
+              args:
+                channelMemberRoles:
+                  - MEMBER
+        - id: chat-service-ws
+          uri: lb://chat
+          predicates:
+            - Path=/chat/ws/**
+          filters:
+            - RewritePath=/chat(?<segment>/?.*), $\{segment}
         - id: channel-invite
           uri: lb://channel-invite
           predicates:

@@ -26,7 +26,14 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: channel-invite-service:1:1,channel-invite-orchestrator:1:1
+      KAFKA_CREATE_TOPICS: channel-invite-service:1:1,channel-invite-orchestrator:1:1,chat-service:1:1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - ./.docker-volume/kafka/docker.sock:/var/run/docker.sock
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - ./.docker-volume/mongo/docker.sock:/data/db
