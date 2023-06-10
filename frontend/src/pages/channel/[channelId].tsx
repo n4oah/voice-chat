@@ -99,62 +99,6 @@ function ChannelPage() {
         </Box>
         <Box overflow={'auto'} padding="12px" height={'100%'} width={'100%'}>
           <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
-          <Box>a</Box>
         </Box>
       </Box>
     </Layout>

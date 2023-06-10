@@ -6,13 +6,15 @@ import {
   ListItemText,
 } from '@mui/material';
 import { deepPurple, grey, teal } from '@mui/material/colors';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { UseMyChannelsApi } from '../../hooks/http/channel/useMyChannels';
 import Link from 'next/link';
 import AddIcon from '@mui/icons-material/Add';
 import { AddChannelModal } from '../feature/AddChannelModal';
 import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
+import SockJS from 'sockjs-client';
+import { StompSubscription, Client as StompClient } from '@stomp/stompjs';
 
 type SidebarChannel = {
   type: 'channel';
@@ -40,6 +42,12 @@ export function Sidebar() {
   const myChannels = UseMyChannelsApi.useFetch();
   const [isOpenAddChannelModal, setOpenAddChannelModal] = useState(false);
   const router = useRouter();
+  const uniqueId = useId();
+
+  const subscribeChannels = useRef<StompSubscription[]>([]);
+
+  const stompClient = useRef<StompClient>();
+  const [isWebSocketConnected, setWebSocketConnected] = useState(false);
 
   useEffect(() => {
     if (myChannels.data) {
@@ -53,6 +61,80 @@ export function Sidebar() {
       );
     }
   }, [myChannels.data]);
+
+  useEffect(() => {
+    stompClient.current = new StompClient({
+      webSocketFactory: () =>
+        new SockJS(
+          (process.env.NEXT_PUBLIC_VOICE_CHAT_API_URL as string) + '/chat/ws',
+        ),
+      connectHeaders: {
+        authorization: 'Bearer spring-chat-auth-token',
+      },
+      onConnect: () => {
+        setWebSocketConnected(true);
+      },
+      reconnectDelay: 1000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    stompClient.current.activate();
+
+    return () => {
+      stompClient.current?.deactivate();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!stompClient.current) {
+      return;
+    }
+
+    if (!isWebSocketConnected) {
+      return;
+    }
+
+    if (myChannels.data?.channels.length) {
+      subscribeChannels.current.forEach((subChannel) => {
+        if (
+          !myChannels.data.channels.some(
+            (channel) => subChannel.id === `${uniqueId}_${channel.id}`,
+          )
+        ) {
+          subChannel.unsubscribe();
+        }
+      });
+
+      subscribeChannels.current = myChannels.data.channels.map((channel) => {
+        for (const subscribeChannel of subscribeChannels.current) {
+          if (
+            myChannels.data.channels.some(
+              (channel) => subscribeChannel.id === `${uniqueId}_${channel.id}`,
+            )
+          ) {
+            return subscribeChannel;
+          }
+        }
+
+        console.log('stompClient.current', stompClient.current);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return stompClient.current!.subscribe(
+          `/topic/channel/${channel.id}`,
+          (message) => {
+            console.log('message', message);
+          },
+          {
+            id: `${uniqueId}_${channel.id}`,
+          },
+        );
+      });
+    } else {
+      subscribeChannels.current.forEach((subChannel) => {
+        subChannel.unsubscribe();
+      });
+    }
+  }, [isWebSocketConnected, myChannels.data?.channels, uniqueId]);
 
   function onClickAddChannel() {
     setOpenAddChannelModal(true);
