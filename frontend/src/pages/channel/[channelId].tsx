@@ -1,12 +1,14 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import { Layout } from '../../components/layout/Layout';
 import { withOnlyLoggingPage } from '../../hoc/withOnlyLoggingPage';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
-import { useState } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Type, plainToClass } from 'class-transformer';
 import { withChannelPage } from '../../hoc/withChannelPage';
+import { UseSendMessageByChannelApi } from '../../hooks/http/chat/useSendMessageByChannelApi';
+import { grey } from '@mui/material/colors';
 
 class RouterQuery {
   @Type(() => Number)
@@ -19,8 +21,26 @@ function ChannelPage() {
 
   const { channelId } = plainToClass(RouterQuery, router.query);
 
+  const sendMessageByChannelApi = UseSendMessageByChannelApi.useMutate();
+
   function onClickChannelInviteBtn() {
     setShowChannelInivteModal(true);
+  }
+
+  function onKeyDownChatBox(event: KeyboardEvent<HTMLDivElement>) {
+    if (!event.shiftKey && event.key === 'Enter') {
+      const chatContentTarget = event.target as unknown as { value: string };
+      if (!chatContentTarget.value) {
+        return;
+      }
+
+      sendMessageByChannelApi.mutate({
+        channelId,
+        content: chatContentTarget.value,
+      });
+      event.preventDefault();
+      chatContentTarget.value = '';
+    }
   }
 
   return (
@@ -98,7 +118,29 @@ function ChannelPage() {
           </Box>
         </Box>
         <Box overflow={'auto'} padding="12px" height={'100%'} width={'100%'}>
-          <Box>a</Box>
+          <Box
+            display={'flex'}
+            width={'100%'}
+            height={'100%'}
+            flexDirection={'column'}
+          >
+            <Box flex={1}>a</Box>
+            <Box display={'flex'} flexDirection={'row'} gap={'4px'}>
+              <Box flex={1} bgcolor={grey[300]}>
+                <TextField
+                  id="outlined-multiline-flexible"
+                  multiline
+                  minRows={3.3}
+                  maxRows={3.3}
+                  fullWidth={true}
+                  onKeyDown={(event) => onKeyDownChatBox(event)}
+                />
+              </Box>
+              <Button variant="contained">
+                <Typography>전송</Typography>
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Layout>

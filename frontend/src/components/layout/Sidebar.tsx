@@ -67,7 +67,6 @@ export function Sidebar() {
   }, [myChannels.data]);
 
   useEffect(() => {
-    console.log('hi');
     stompClient.current = new StompClient({
       webSocketFactory: () =>
         new SockJS(
