@@ -1,5 +1,6 @@
 package com.voicechat.chat.config;
 
+import com.voicechat.chat.exception.handler.StompErrorHandler;
 import com.voicechat.chat.interceptor.WebsocketInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     private final WebsocketInterceptor websocketInterceptor;
+    private final StompErrorHandler stompErrorHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -22,7 +24,8 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*")
                 .withSockJS()
                 .setSuppressCors(true);
-//        registry.setErrorHandler()
+
+        registry.setErrorHandler(stompErrorHandler);
     }
 
     @Override

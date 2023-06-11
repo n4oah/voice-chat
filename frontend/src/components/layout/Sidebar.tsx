@@ -15,6 +15,8 @@ import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
 import SockJS from 'sockjs-client';
 import { StompSubscription, Client as StompClient } from '@stomp/stompjs';
+import { useRecoilValue } from 'recoil';
+import { memberAccessTokenAtom } from '../../recoil/atoms/member-atom';
 
 type SidebarChannel = {
   type: 'channel';
@@ -44,6 +46,8 @@ export function Sidebar() {
   const router = useRouter();
   const uniqueId = useId();
 
+  const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
+
   const subscribeChannels = useRef<StompSubscription[]>([]);
 
   const stompClient = useRef<StompClient>();
@@ -63,13 +67,15 @@ export function Sidebar() {
   }, [myChannels.data]);
 
   useEffect(() => {
+    console.log('hi');
     stompClient.current = new StompClient({
       webSocketFactory: () =>
         new SockJS(
           (process.env.NEXT_PUBLIC_VOICE_CHAT_API_URL as string) + '/chat/ws',
         ),
       connectHeaders: {
-        authorization: 'Bearer spring-chat-auth-token',
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        authorization: `Bearer ${memberAccessToken!.accessToken}`,
       },
       onConnect: () => {
         setWebSocketConnected(true);
@@ -83,8 +89,9 @@ export function Sidebar() {
 
     return () => {
       stompClient.current?.deactivate();
+      setWebSocketConnected(false);
     };
-  }, []);
+  }, [memberAccessToken]);
 
   useEffect(() => {
     if (!stompClient.current) {
@@ -126,6 +133,8 @@ export function Sidebar() {
           },
           {
             id: `${uniqueId}_${channel.id}`,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            authorization: `Bearer ${memberAccessToken!.accessToken}`,
           },
         );
       });
@@ -134,7 +143,12 @@ export function Sidebar() {
         subChannel.unsubscribe();
       });
     }
-  }, [isWebSocketConnected, myChannels.data?.channels, uniqueId]);
+  }, [
+    isWebSocketConnected,
+    memberAccessToken,
+    myChannels.data?.channels,
+    uniqueId,
+  ]);
 
   function onClickAddChannel() {
     setOpenAddChannelModal(true);

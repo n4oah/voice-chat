@@ -2,12 +2,16 @@ package com.voicechat.common.error;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum ErrorCode {
 
     // Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "INTERNAL_SERVER_ERROR"),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "C002", "Entity Not Found"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "C003", "Invalid Validation"),
+    UNAUTHORIZED_ERROR(HttpStatus.UNAUTHORIZED, "C004", "Unauthorized"),
 
     // Member
     EMAIL_DUPLICATION(HttpStatus.CONFLICT, "M001", "Email is Duplication"),
@@ -30,6 +34,10 @@ public enum ErrorCode {
         this.status = status;
         this.message = message;
         this.code = code;
+    }
+
+    public static Optional<ErrorCode> getErrorCodeByCode(String code) {
+        return Arrays.stream(ErrorCode.values()).filter((ec) -> ec.code.equals(code)).findAny();
     }
 
     public String getMessage() {
