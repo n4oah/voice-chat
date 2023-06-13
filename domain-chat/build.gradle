@@ -1,0 +1,18 @@
+bootJar {
+	enabled = false
+}
+jar {
+	enabled = true
+}
+
+test {
+	enabled = false
+}
+
+dependencies {
+	implementation project (':common')
+
+	implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.21.1'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	api 'org.springframework.boot:spring-boot-starter-data-mongodb'
+}

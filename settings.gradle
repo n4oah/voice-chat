@@ -19,5 +19,6 @@ include('config',
         'channel-invite',
         'domain-channel-invite',
         'channel-invite-orchestrator',
-        'chat'
+        'chat',
+        'domain-chat'
 )

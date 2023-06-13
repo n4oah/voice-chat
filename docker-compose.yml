@@ -31,9 +31,12 @@ services:
     volumes:
       - ./.docker-volume/kafka/docker.sock:/var/run/docker.sock
   mongo:
-    image: mongo
+    image: mongo:latest
+    container_name: monog_chat
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
     volumes:
       - ./.docker-volume/mongo/docker.sock:/data/db
+    ports:
+      - "27017:27017"

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voicechat.chat.adapter.out.ChatProducer;
 import com.voicechat.chat.constant.KafkaTopic;
 import com.voicechat.chat.dto.ChatMessage;
-import com.voicechat.chat.dto.SendMessageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

@@ -28,11 +28,14 @@ function ChannelPage() {
   }
 
   function onKeyDownChatBox(event: KeyboardEvent<HTMLDivElement>) {
+    console.log('모여');
+
     if (!event.shiftKey && event.key === 'Enter') {
       const chatContentTarget = event.target as unknown as { value: string };
       if (!chatContentTarget.value) {
         return;
       }
+      console.log('모여');
 
       sendMessageByChannelApi.mutate({
         channelId,

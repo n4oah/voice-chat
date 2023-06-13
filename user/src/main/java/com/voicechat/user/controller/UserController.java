@@ -60,6 +60,6 @@ public class UserController {
     public AuthJwtDecodeDto.AuthJwtDecodeResDto jwtDecode(
             @Valid() AuthJwtDecodeDto.AuthJwtDecodeReqDto authJwtDecodeReqDto
     ) {
-        return this.userService.jwtDecode(authJwtDecodeReqDto.getAccessToken());
+        return this.userService.jwtDecode(authJwtDecodeReqDto.accessToken());
     }
 }

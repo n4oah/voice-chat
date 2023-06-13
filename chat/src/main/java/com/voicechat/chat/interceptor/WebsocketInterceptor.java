@@ -49,6 +49,7 @@ public class WebsocketInterceptor implements ChannelInterceptor {
 
                 System.out.println(memberInfo.id());
             } catch (FeignException exception) {
+                log.error("e", exception);
                 this.throwFeignException(exception);
             }
         }
