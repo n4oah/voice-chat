@@ -13,7 +13,7 @@ export function useAddChannelChat(channelId: number) {
         return produce(channelChats, (draft) => {
           draft.push(message);
 
-          return draft;
+          draft.sort((a, b) => b.id.localeCompare(a.id));
         });
       });
     },

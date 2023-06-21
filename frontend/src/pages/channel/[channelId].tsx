@@ -3,7 +3,7 @@ import { Layout } from '../../components/layout/Layout';
 import { withOnlyLoggingPage } from '../../hoc/withOnlyLoggingPage';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
-import React, { KeyboardEvent, useState } from 'react';
+import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Type, plainToClass } from 'class-transformer';
 import { withChannelPage } from '../../hoc/withChannelPage';
@@ -12,6 +12,7 @@ import { grey } from '@mui/material/colors';
 import { useRecoilValue } from 'recoil';
 import { getChannelChat } from '../../recoil/selector/get-channel-chat';
 import { getMyInfoByAccessToken } from '../../recoil/selector/get-my-info-by-access-token';
+import { useInView } from 'react-intersection-observer';
 
 class RouterQuery {
   @Type(() => Number)
@@ -26,8 +27,30 @@ function ChannelPage() {
 
   const chattingHistorys = useRecoilValue(getChannelChat(channelId));
 
+  const { ref: lastChatRef, inView: isLastChatView } = useInView({
+    threshold: 1,
+  });
+
   const sendMessageByChannelApi = UseSendMessageByChannelApi.useMutate();
   const myInfo = useRecoilValue(getMyInfoByAccessToken);
+
+  const chattingRoomWrapper = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (
+      chattingHistorys &&
+      chattingHistorys.length &&
+      chattingRoomWrapper.current
+    ) {
+      if (isLastChatView || chattingHistorys[0].senderUserId === myInfo.id) {
+        chattingRoomWrapper.current.scrollTo(
+          0,
+          chattingRoomWrapper.current.scrollHeight,
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chattingHistorys]);
 
   function onClickChannelInviteBtn() {
     setShowChannelInivteModal(true);
@@ -37,6 +60,10 @@ function ChannelPage() {
     if (event.nativeEvent.isComposing) {
       return;
     }
+    // console.log(
+    //   'chattingRoomWrapper.current.scrollTop',
+    //   chattingRoomWrapper.current!.scrollTop,
+    // );
     if (!event.shiftKey && event.key === 'Enter') {
       const chatContentTarget = event.target as unknown as { value: string };
       if (
@@ -146,6 +173,7 @@ function ChannelPage() {
               overflow={'auto'}
               padding={'12px'}
               gap={'4px'}
+              ref={chattingRoomWrapper}
             >
               {chattingHistorys.map((chattingHistory, index) =>
                 chattingHistory.senderUserId === myInfo.id ? (
@@ -154,6 +182,7 @@ function ChannelPage() {
                     display={'flex'}
                     flexDirection={'column'}
                     alignItems={'flex-end'}
+                    ref={index === 0 ? lastChatRef : undefined}
                   >
                     {(chattingHistorys[index + 1]
                       ? chattingHistorys[index + 1].senderUserId !== myInfo.id
@@ -177,6 +206,7 @@ function ChannelPage() {
                   </Box>
                 ) : (
                   <Box
+                    ref={index === 0 ? lastChatRef : undefined}
                     key={chattingHistory.id}
                     display={'flex'}
                     flexDirection={'column'}
