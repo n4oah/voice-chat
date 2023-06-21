@@ -65,7 +65,6 @@ public class Channel extends AbstractAuditingEntity {
             throw new AlreadyChannelUserException();
         }
 
-        this.channelMembers.stream().forEach((s) -> System.out.println(s.getId()));
         if (this.channelMembers.size() >= this.getMaxNumberOfMember()) {
             throw new FullChannelException();
         }

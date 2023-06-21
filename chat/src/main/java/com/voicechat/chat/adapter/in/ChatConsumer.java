@@ -3,7 +3,10 @@ package com.voicechat.chat.adapter.in;
 import com.voicechat.chat.application.SendChatService;
 import com.voicechat.chat.constant.KafkaTopic;
 import com.voicechat.chat.dto.ChatMessage;
+import com.voicechat.chat.dto.ReceiveMessage;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -23,8 +26,17 @@ public class ChatConsumer {
     public void chatMessageListener(
         @Payload @Valid ChatMessage chatMessage
     ) {
-        System.out.println("AA" + chatService.sendChannelMessage(chatMessage));
+        final String chatId = chatService.sendChannelMessage(chatMessage);
 
-        this.template.convertAndSend("/topic/channel/" + chatMessage.channelId(), chatMessage);
+        final var receiveMessage = new ReceiveMessage(
+            chatId,
+            chatMessage.uuid(),
+            chatMessage.senderUserId(),
+            chatMessage.channelId(),
+            chatMessage.content(),
+            chatMessage.timestamp()
+        );
+
+        this.template.convertAndSend("/topic/channel/" + chatMessage.channelId(), receiveMessage);
     }
 }

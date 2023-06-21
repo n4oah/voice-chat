@@ -23,8 +23,8 @@ public class AddChannelMemberStep extends AbstractWorkflowStep {
         )
                 .map((r) -> true)
                 .doOnSuccess((r) -> this.setWorkflowStepStatus(WorkflowStepStatus.COMPLETED))
-                .doOnError((e) -> {
-                    System.out.println(e);
+                .doOnError((error) -> {
+                    log.error("error" ,error);
                     this.setWorkflowStepStatus(WorkflowStepStatus.FAILED);
                 })
                 .onErrorReturn(false);
@@ -38,7 +38,9 @@ public class AddChannelMemberStep extends AbstractWorkflowStep {
                 addChannelMemberReqDto.userId()
         )
                 .map((r) -> true)
-                .doOnError(System.out::println)
+                .doOnError((error) -> {
+                    log.error("error" ,error);
+                })
                 .onErrorReturn(false);
     }
 }

@@ -43,7 +43,7 @@ public class SendChatService {
         return uuid;
     }
 
-    public ChannelChat sendChannelMessage(ChatMessage chatMessage) {
+    public String sendChannelMessage(ChatMessage chatMessage) {
         final var channelChat = ChannelChat.sendMessage(
                 chatMessage.uuid(),
                 chatMessage.senderUserId(),
@@ -57,6 +57,6 @@ public class SendChatService {
 
         this.channelChatRepository.save(channelChat);
 
-        return channelChat;
+        return channelChat.getId();
     }
 }

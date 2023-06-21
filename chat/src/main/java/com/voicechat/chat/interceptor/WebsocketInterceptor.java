@@ -46,8 +46,6 @@ public class WebsocketInterceptor implements ChannelInterceptor {
                 final var memberInfo = userServiceClient.authJwtDecodeToUser(new UserAuthJwtDecodeDto.UserAuthJwtDecodeReqDto(
                     authorization
                 )).getBody();
-
-                System.out.println(memberInfo.id());
             } catch (FeignException exception) {
                 log.error("e", exception);
                 this.throwFeignException(exception);
