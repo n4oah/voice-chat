@@ -3,12 +3,15 @@ import { Layout } from '../../components/layout/Layout';
 import { withOnlyLoggingPage } from '../../hoc/withOnlyLoggingPage';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
-import { KeyboardEvent, useState } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Type, plainToClass } from 'class-transformer';
 import { withChannelPage } from '../../hoc/withChannelPage';
 import { UseSendMessageByChannelApi } from '../../hooks/http/chat/useSendMessageByChannelApi';
 import { grey } from '@mui/material/colors';
+import { useRecoilValue } from 'recoil';
+import { getChannelChat } from '../../recoil/selector/get-channel-chat';
+import { getMyInfoByAccessToken } from '../../recoil/selector/get-my-info-by-access-token';
 
 class RouterQuery {
   @Type(() => Number)
@@ -21,7 +24,10 @@ function ChannelPage() {
 
   const { channelId } = plainToClass(RouterQuery, router.query);
 
+  const chattingHistorys = useRecoilValue(getChannelChat(channelId));
+
   const sendMessageByChannelApi = UseSendMessageByChannelApi.useMutate();
+  const myInfo = useRecoilValue(getMyInfoByAccessToken);
 
   function onClickChannelInviteBtn() {
     setShowChannelInivteModal(true);
@@ -125,14 +131,71 @@ function ChannelPage() {
             </Box>
           </Box>
         </Box>
-        <Box overflow={'auto'} padding="12px" height={'100%'} width={'100%'}>
+        <Box padding="12px" height={'100%'} width={'100%'} overflow={'hidden'}>
           <Box
             display={'flex'}
             width={'100%'}
             height={'100%'}
             flexDirection={'column'}
+            overflow={'hidden'}
           >
-            <Box flex={1}>a</Box>
+            <Box
+              flex={1}
+              display={'flex'}
+              flexDirection={'column-reverse'}
+              overflow={'auto'}
+              padding={'12px'}
+              gap={'4px'}
+            >
+              {chattingHistorys.map((chattingHistory, index) =>
+                chattingHistory.senderUserId === myInfo.id ? (
+                  <Box
+                    key={chattingHistory.id}
+                    display={'flex'}
+                    flexDirection={'column'}
+                    alignItems={'flex-end'}
+                  >
+                    {(chattingHistorys[index + 1]
+                      ? chattingHistorys[index + 1].senderUserId !== myInfo.id
+                        ? true
+                        : false
+                      : true) && (
+                      <Box>
+                        <Typography>{myInfo.name}</Typography>
+                      </Box>
+                    )}
+                    <Box
+                      padding={'8px'}
+                      bgcolor={grey['600']}
+                      maxWidth={'80%'}
+                      width={'max-content'}
+                      borderRadius={'4px'}
+                      color={'white'}
+                    >
+                      {chattingHistory.content}
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box
+                    key={chattingHistory.id}
+                    display={'flex'}
+                    flexDirection={'column'}
+                    alignItems={'flex-start'}
+                  >
+                    <Box
+                      padding={'8px'}
+                      bgcolor={grey['500']}
+                      maxWidth={'80%'}
+                      width={'max-content'}
+                      borderRadius={'4px'}
+                      color={'white'}
+                    >
+                      {chattingHistory.content}
+                    </Box>
+                  </Box>
+                ),
+              )}
+            </Box>
             <Box display={'flex'} flexDirection={'row'} gap={'4px'}>
               <Box flex={1} bgcolor={grey[300]}>
                 <TextField

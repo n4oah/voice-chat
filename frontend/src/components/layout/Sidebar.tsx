@@ -13,10 +13,12 @@ import AddIcon from '@mui/icons-material/Add';
 import { AddChannelModal } from '../feature/AddChannelModal';
 import { useRouter } from 'next/router';
 import styled from '@emotion/styled';
-import SockJS from 'sockjs-client';
-import { StompSubscription, Client as StompClient } from '@stomp/stompjs';
 import { useRecoilValue } from 'recoil';
 import { memberAccessTokenAtom } from '../../recoil/atoms/member-atom';
+import { useStompSessionContext } from '../../context/StompSession';
+import { ChatReceiveMessage } from '../../types/chat';
+import { StompSubscription } from '@stomp/stompjs';
+import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
 
 type SidebarChannel = {
   type: 'channel';
@@ -25,10 +27,10 @@ type SidebarChannel = {
 };
 
 const ChannelButton = styled(ListItemButton)(
-  ({ active = false }: { active?: boolean }) => ({
+  ({ isActive = false }: { isActive?: boolean }) => ({
     padding: 0,
-    backgroundColor: active ? deepPurple[900] : grey[500],
-    color: active ? 'white' : 'black',
+    backgroundColor: isActive ? deepPurple[900] : grey[500],
+    color: isActive ? 'white' : 'black',
     borderRadius: '50%',
     minWidth: '60px',
     width: '60px',
@@ -44,14 +46,6 @@ export function Sidebar() {
   const myChannels = UseMyChannelsApi.useFetch();
   const [isOpenAddChannelModal, setOpenAddChannelModal] = useState(false);
   const router = useRouter();
-  const uniqueId = useId();
-
-  const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
-
-  const subscribeChannels = useRef<StompSubscription[]>([]);
-
-  const stompClient = useRef<StompClient>();
-  const [isWebSocketConnected, setWebSocketConnected] = useState(false);
 
   useEffect(() => {
     if (myChannels.data) {
@@ -66,89 +60,6 @@ export function Sidebar() {
     }
   }, [myChannels.data]);
 
-  useEffect(() => {
-    stompClient.current = new StompClient({
-      webSocketFactory: () =>
-        new SockJS(
-          (process.env.NEXT_PUBLIC_VOICE_CHAT_API_URL as string) + '/chat/ws',
-        ),
-      connectHeaders: {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        authorization: `Bearer ${memberAccessToken!.accessToken}`,
-      },
-      onConnect: () => {
-        setWebSocketConnected(true);
-      },
-      reconnectDelay: 1000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    stompClient.current.activate();
-
-    return () => {
-      stompClient.current?.deactivate();
-      setWebSocketConnected(false);
-    };
-  }, [memberAccessToken]);
-
-  useEffect(() => {
-    if (!stompClient.current) {
-      return;
-    }
-
-    if (!isWebSocketConnected) {
-      return;
-    }
-
-    if (myChannels.data?.channels.length) {
-      subscribeChannels.current.forEach((subChannel) => {
-        if (
-          !myChannels.data.channels.some(
-            (channel) => subChannel.id === `${uniqueId}_${channel.id}`,
-          )
-        ) {
-          subChannel.unsubscribe();
-        }
-      });
-
-      subscribeChannels.current = myChannels.data.channels.map((channel) => {
-        for (const subscribeChannel of subscribeChannels.current) {
-          if (
-            myChannels.data.channels.some(
-              (channel) => subscribeChannel.id === `${uniqueId}_${channel.id}`,
-            )
-          ) {
-            return subscribeChannel;
-          }
-        }
-
-        console.log('stompClient.current', stompClient.current);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return stompClient.current!.subscribe(
-          `/topic/channel/${channel.id}`,
-          (message) => {
-            console.log('message', message);
-          },
-          {
-            id: `${uniqueId}_${channel.id}`,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            authorization: `Bearer ${memberAccessToken!.accessToken}`,
-          },
-        );
-      });
-    } else {
-      subscribeChannels.current.forEach((subChannel) => {
-        subChannel.unsubscribe();
-      });
-    }
-  }, [
-    isWebSocketConnected,
-    memberAccessToken,
-    myChannels.data?.channels,
-    uniqueId,
-  ]);
-
   function onClickAddChannel() {
     setOpenAddChannelModal(true);
   }
@@ -162,7 +73,7 @@ export function Sidebar() {
       <List style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <ListItem disablePadding>
           <Link href={'/'}>
-            <ChannelButton active={router.asPath === '/'}>
+            <ChannelButton isActive={router.asPath === '/' ?? false}>
               <ListItemText primary={'홈'} />
             </ChannelButton>
           </Link>
@@ -170,11 +81,11 @@ export function Sidebar() {
         {sidebarMenus.map((sidebarMenu) => (
           <ListItem key={sidebarMenu.channelId} disablePadding>
             <Link href={`/channel/${sidebarMenu.channelId}`}>
-              <ChannelButton
-                active={router.asPath === `/channel/${sidebarMenu.channelId}`}
-              >
-                <ListItemText primary={sidebarMenu.name} />
-              </ChannelButton>
+              <ChannelWrapper
+                isActive={router.asPath === `/channel/${sidebarMenu.channelId}`}
+                channelId={sidebarMenu.channelId}
+                channelName={sidebarMenu.name}
+              />
             </Link>
           </ListItem>
         ))}
@@ -192,5 +103,65 @@ export function Sidebar() {
         </ListItem>
       </List>
     </section>
+  );
+}
+
+function ChannelWrapper({
+  isActive,
+  channelId,
+  channelName,
+}: {
+  channelName: string;
+  channelId: number;
+  isActive: boolean;
+}) {
+  const { isWebSocketConnected, stompClient } = useStompSessionContext();
+  const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
+  const uniqueId = useId();
+  const stompSubscribe = useRef<StompSubscription>();
+  const addChannelChat = useAddChannelChat(channelId);
+
+  useEffect(() => {
+    if (!stompClient) {
+      return;
+    }
+    if (!isWebSocketConnected) {
+      return;
+    }
+    if (!memberAccessToken) {
+      return;
+    }
+
+    stompSubscribe.current = stompClient?.subscribe(
+      `/topic/channel/${channelId}`,
+      (message) => {
+        const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
+
+        addChannelChat(messageBody);
+      },
+      {
+        id: `${uniqueId}_${channelId}`,
+        authorization: `Bearer ${memberAccessToken.accessToken}`,
+      },
+    );
+    return () => {
+      if (stompSubscribe.current) {
+        console.log('hi~~');
+        stompSubscribe.current.unsubscribe();
+      }
+    };
+  }, [
+    addChannelChat,
+    channelId,
+    isWebSocketConnected,
+    memberAccessToken,
+    stompClient,
+    uniqueId,
+  ]);
+
+  return (
+    <ChannelButton isActive={isActive}>
+      <ListItemText primary={channelName} />
+    </ChannelButton>
   );
 }

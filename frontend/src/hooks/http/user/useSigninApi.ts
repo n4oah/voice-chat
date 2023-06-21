@@ -27,7 +27,6 @@ export namespace UseSigninApi {
 
         formData.append('email', email);
         formData.append('password', password);
-
         return axiosInstance.post(`/users/signin`, formData);
       },
       {

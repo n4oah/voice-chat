@@ -74,10 +74,12 @@ function createAxiosInstance(
         isVoiceChatErrorType(config.response.data)
       ) {
         if (config.response.data.code === 'M002') {
+          console.log('?');
           signout();
+          return config;
         }
       }
-      return config;
+      throw config;
     },
   );
 
