@@ -49,8 +49,7 @@ function ChannelPage() {
         );
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chattingHistorys]);
+  }, [chattingHistorys, isLastChatView, myInfo.id]);
 
   function onClickChannelInviteBtn() {
     setShowChannelInivteModal(true);

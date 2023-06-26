@@ -3,17 +3,22 @@ package com.voicechat.chat.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.voicechat.chat.adapter.out.ChatProducer;
 import com.voicechat.chat.dto.ChatMessage;
+import com.voicechat.chat.dto.GetChannelChatting;
+import com.voicechat.chat.dto.ReceiveMessage;
 import com.voicechat.chat.dto.SendMessageDto;
 import com.voicechat.domain.chat.entity.ChannelChat;
+import com.voicechat.domain.chat.entity.QChannelChat;
 import com.voicechat.domain.chat.repository.ChannelChatRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.querydsl.QSort;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -58,5 +63,44 @@ public class SendChatService {
         this.channelChatRepository.save(channelChat);
 
         return channelChat.getId();
+    }
+
+    public GetChannelChatting.GetChannelChattingRes getChannelChattingList(
+        Long channelId,
+        GetChannelChatting.GetChannelChattingReq getChannelChattingReq
+    ) {
+        final var predicate =
+                QChannelChat.channelChat.channelId.eq(channelId);
+
+        if (getChannelChattingReq.getNextCursorId() != null) {
+            predicate.and(QChannelChat.channelChat.id.lt(getChannelChattingReq.getNextCursorId()));
+        }
+
+        final var messages = this.channelChatRepository.findAll(
+                predicate,
+                PageRequest.of(
+                        0,
+                        getChannelChattingReq.getLimit(),
+                        new QSort(QChannelChat.channelChat.channelId.desc())
+                )
+        ).stream().map((chat) -> new ReceiveMessage(
+                chat.getId(),
+                chat.getUuid(),
+                chat.getSenderUserId(),
+                chat.getChannelId(),
+                chat.getContent(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern(
+                        SENT_MESSAGE_FORMAT_PATTERN
+                ))
+        )).toList();
+
+        if (messages.size() == 0) {
+            return new GetChannelChatting.GetChannelChattingRes(Collections.emptyList(), null);
+        }
+
+        return new GetChannelChatting.GetChannelChattingRes(
+            messages,
+            messages.get(messages.size() - 1).id()
+        );
     }
 }
