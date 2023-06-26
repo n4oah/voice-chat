@@ -1,3 +1,7 @@
+plugins {
+	id "com.ewerk.gradle.plugins.querydsl" version '1.0.10'
+}
+
 bootJar {
 	enabled = false
 }
@@ -15,4 +19,31 @@ dependencies {
 	implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.21.1'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	api 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	api (group: 'com.querydsl', name: 'querydsl-mongodb', version: '5.0.0') {
+		exclude group: 'org.mongodb', module: 'mongo-java-driver'
+	}
+	compileOnly group: 'com.querydsl', name: 'querydsl-apt', version: '5.0.0'
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	library = 'com.querydsl:querydsl-apt'
+	springDataMongo = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main.java.srcDir querydslDir
+}
+
+compileQuerydsl {
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
 }
