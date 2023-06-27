@@ -46,6 +46,21 @@ spring:
                 channelMemberRoles:
                   - MANAGER
                   - ASSISTANT_MANAGER
+        - id: channel-invite-MEMBER
+          uri: lb://channel-invite
+          predicates:
+            - Path=/channel-invite/channel/{channelId}/**
+            - name: Method
+              args:
+                methods:
+                  - GET
+          filters:
+            - RewritePath=/channel-invite(?<segment>/?.*), $\{segment}
+            - AuthFilter
+            - name: ChannelAuthFilter
+              args:
+                channelMemberRoles:
+                  - MEMBER
         - id: chat-service-CHANNEL-MEMBER
           uri: lb://chat
           predicates:

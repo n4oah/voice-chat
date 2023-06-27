@@ -53,6 +53,15 @@ public class ChannelController {
         this.channelService.addChannelMember(channelId, userId);
     }
 
+    @GetMapping("{channelId}/channel-member/")
+    public GetChannelMemberDto.GetChannelMemberDtoRes getChannelMembers(
+            @PathVariable("channelId") Long channelId
+    ) {
+        return new GetChannelMemberDto.GetChannelMemberDtoRes(
+                this.channelService.getChannelMemberByChannelId(channelId)
+        );
+    }
+
     @DeleteMapping("{channelId}/channel-member/{userId}")
     public void removeChannelMember(
             @PathVariable("channelId") Long channelId,

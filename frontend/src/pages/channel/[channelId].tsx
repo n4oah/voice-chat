@@ -22,6 +22,7 @@ import { useInView } from 'react-intersection-observer';
 import { UseFetchChannelMessageApi } from '../../hooks/http/chat/useFetchChannelMessageApi';
 import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { UseFetchChannelMembersApi } from '../../hooks/http/channel/useFetchChannelMembersApi';
 
 class RouterQuery {
   @Type(() => Number)
@@ -30,11 +31,14 @@ class RouterQuery {
 
 function ChannelPage() {
   const [isShowChannelInivteModal, setShowChannelInivteModal] = useState(false);
+
   const router = useRouter();
 
   const uniqueId = useId();
 
   const { channelId } = plainToClass(RouterQuery, router.query);
+
+  const channelMembers = UseFetchChannelMembersApi.useFetch({ channelId });
 
   const chattingHistorys = useRecoilValue(getChannelChat(channelId));
   const ignorePages = useRef<Set<number>>(new Set());
@@ -248,8 +252,7 @@ function ChannelPage() {
                         borderRadius={'4px'}
                         color={'white'}
                       >
-                        {chattingHistory.content} ======
-                        {chattingHistory.timestamp}
+                        {chattingHistory.content}
                       </Box>
                     </Box>
                   ) : (

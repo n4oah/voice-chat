@@ -11,4 +11,5 @@ public interface ChannelMemberRepository extends JpaRepository<ChannelMember, Lo
     Long countByChannel(Channel channel);
     Optional<ChannelMember> findByChannelAndUserId(Channel channel, Long userId);
     List<ChannelMember> findByUserId(Long userId);
+    List<ChannelMember> findByChannel(Channel channel);
 }

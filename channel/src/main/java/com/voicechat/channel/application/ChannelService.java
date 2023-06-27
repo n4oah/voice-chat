@@ -1,8 +1,10 @@
 package com.voicechat.channel.application;
 
+import com.voicechat.channel.adapter.out.UserServiceClient;
 import com.voicechat.channel.dto.CreateChannelDto;
 import com.voicechat.channel.dto.GetChannelDetailDto;
 import com.voicechat.channel.dto.GetChannelListDto;
+import com.voicechat.channel.dto.GetChannelMemberDto;
 import com.voicechat.channel.exception.NotFoundChannelException;
 import com.voicechat.domain.channel.entity.Channel;
 import com.voicechat.domain.channel.entity.ChannelMember;
@@ -23,6 +25,7 @@ public class ChannelService {
     private final ChannelRepository channelRepository;
     private final ChannelMemberRepository channelMemberRepository;
     private final ChannelMemberAuthRoleRepository channelMemberAuthRoleRepository;
+    private final UserServiceClient userServiceClient;
 
     public void createChannel(Long userId, CreateChannelDto.CreateChannelDtoReq createChannelDtoReq) {
         final var channel =
@@ -105,5 +108,20 @@ public class ChannelService {
                 channelMember.getChannel().getMaxNumberOfMember(),
                 channelMember.getAuthorities().stream().map((a) -> a.getName()).collect(Collectors.toList())
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetChannelMemberDto.GetChannelMemberDtoRes.ChannelMemberItem>
+        getChannelMemberByChannelId(Long channelId) {
+
+        final var channel = this.channelRepository.findById(channelId).orElseThrow(NotFoundChannelException::new);
+        final var channelMembers = this.channelMemberRepository.findByChannel(channel);
+
+        return channelMembers.stream().map(channelMember ->
+            new GetChannelMemberDto.GetChannelMemberDtoRes.ChannelMemberItem(
+                channelMember.getId(),
+                this.userServiceClient.getUserInfo(channelMember.getUserId()).getBody().name()
+            )
+        ).toList();
     }
 }
