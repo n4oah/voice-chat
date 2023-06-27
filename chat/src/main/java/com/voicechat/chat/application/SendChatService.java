@@ -114,6 +114,6 @@ public class SendChatService {
                         SENT_MESSAGE_FORMAT_PATTERN
                 )),
                 this.chatUserDetailService.getUserDetail(channelChat.getSenderUserId()).name()
-        );v
+        );
     }
 }
