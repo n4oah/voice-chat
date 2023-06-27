@@ -241,7 +241,9 @@ function ChannelPage() {
                           : false
                         : true) && (
                         <Box>
-                          <Typography>{myInfo.name}</Typography>
+                          <Typography>
+                            {chattingHistory.senderUserName}
+                          </Typography>
                         </Box>
                       )}
                       <Box
@@ -263,6 +265,18 @@ function ChannelPage() {
                       flexDirection={'column'}
                       alignItems={'flex-start'}
                     >
+                      {(chattingHistorys[index + 1]
+                        ? chattingHistorys[index + 1].senderUserId !==
+                          chattingHistory.senderUserId
+                          ? true
+                          : false
+                        : true) && (
+                        <Box>
+                          <Typography>
+                            {chattingHistory.senderUserName}
+                          </Typography>
+                        </Box>
+                      )}
                       <Box
                         padding={'8px'}
                         bgcolor={grey['500']}
