@@ -146,7 +146,6 @@ function ChannelWrapper({
     );
     return () => {
       if (stompSubscribe.current) {
-        console.log('hi~~');
         stompSubscribe.current.unsubscribe();
       }
     };

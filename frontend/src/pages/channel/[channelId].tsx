@@ -3,7 +3,13 @@ import { Layout } from '../../components/layout/Layout';
 import { withOnlyLoggingPage } from '../../hoc/withOnlyLoggingPage';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
-import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  KeyboardEvent,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { Type, plainToClass } from 'class-transformer';
 import { withChannelPage } from '../../hoc/withChannelPage';
@@ -13,6 +19,9 @@ import { useRecoilValue } from 'recoil';
 import { getChannelChat } from '../../recoil/selector/get-channel-chat';
 import { getMyInfoByAccessToken } from '../../recoil/selector/get-my-info-by-access-token';
 import { useInView } from 'react-intersection-observer';
+import { UseFetchChannelMessageApi } from '../../hooks/http/chat/useFetchChannelMessageApi';
+import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 class RouterQuery {
   @Type(() => Number)
@@ -23,12 +32,21 @@ function ChannelPage() {
   const [isShowChannelInivteModal, setShowChannelInivteModal] = useState(false);
   const router = useRouter();
 
+  const uniqueId = useId();
+
   const { channelId } = plainToClass(RouterQuery, router.query);
 
   const chattingHistorys = useRecoilValue(getChannelChat(channelId));
+  const ignorePages = useRef<Set<number>>(new Set());
+
+  const addChannelChat = useAddChannelChat(channelId);
 
   const { ref: lastChatRef, inView: isLastChatView } = useInView({
     threshold: 1,
+  });
+
+  const channelMessageApi = UseFetchChannelMessageApi.useFetch({
+    channelId,
   });
 
   const sendMessageByChannelApi = UseSendMessageByChannelApi.useMutate();
@@ -42,14 +60,30 @@ function ChannelPage() {
       chattingHistorys.length &&
       chattingRoomWrapper.current
     ) {
-      if (isLastChatView || chattingHistorys[0].senderUserId === myInfo.id) {
+      // || chattingHistorys[0].senderUserId === myInfo.id
+      if (isLastChatView) {
         chattingRoomWrapper.current.scrollTo(
           0,
           chattingRoomWrapper.current.scrollHeight,
         );
       }
     }
-  }, [chattingHistorys, isLastChatView, myInfo.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chattingHistorys]);
+
+  useEffect(() => {
+    if (channelMessageApi.data && channelMessageApi.data.pages.length) {
+      channelMessageApi.data.pages.forEach((page, pageIndex) => {
+        if (ignorePages.current.has(pageIndex)) {
+          return;
+        }
+
+        page.messages.forEach((message) => addChannelChat(message));
+
+        ignorePages.current.add(pageIndex);
+      });
+    }
+  }, [addChannelChat, channelMessageApi.data]);
 
   function onClickChannelInviteBtn() {
     setShowChannelInivteModal(true);
@@ -59,10 +93,7 @@ function ChannelPage() {
     if (event.nativeEvent.isComposing) {
       return;
     }
-    // console.log(
-    //   'chattingRoomWrapper.current.scrollTop',
-    //   chattingRoomWrapper.current!.scrollTop,
-    // );
+
     if (!event.shiftKey && event.key === 'Enter') {
       const chatContentTarget = event.target as unknown as { value: string };
       if (
@@ -81,6 +112,10 @@ function ChannelPage() {
 
       event.preventDefault();
     }
+  }
+
+  function getScrollableId() {
+    return uniqueId + 'scrollable';
   }
 
   return (
@@ -166,64 +201,79 @@ function ChannelPage() {
             overflow={'hidden'}
           >
             <Box
-              flex={1}
-              display={'flex'}
-              flexDirection={'column-reverse'}
               overflow={'auto'}
-              padding={'12px'}
-              gap={'4px'}
+              id={getScrollableId()}
+              display={'flex'}
+              height={'100%'}
+              flexDirection={'column-reverse'}
               ref={chattingRoomWrapper}
             >
-              {chattingHistorys.map((chattingHistory, index) =>
-                chattingHistory.senderUserId === myInfo.id ? (
-                  <Box
-                    key={chattingHistory.id}
-                    display={'flex'}
-                    flexDirection={'column'}
-                    alignItems={'flex-end'}
-                    ref={index === 0 ? lastChatRef : undefined}
-                  >
-                    {(chattingHistorys[index + 1]
-                      ? chattingHistorys[index + 1].senderUserId !== myInfo.id
-                        ? true
-                        : false
-                      : true) && (
-                      <Box>
-                        <Typography>{myInfo.name}</Typography>
+              <InfiniteScroll
+                inverse={true}
+                dataLength={chattingHistorys.length}
+                next={channelMessageApi.fetchNextPage}
+                hasMore={channelMessageApi.hasNextPage ?? false}
+                loader={'loading'}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column-reverse',
+                  padding: '12px',
+                  gap: '4px',
+                }}
+                scrollableTarget={getScrollableId()}
+              >
+                {chattingHistorys.map((chattingHistory, index) =>
+                  chattingHistory.senderUserId === myInfo.id ? (
+                    <Box
+                      key={chattingHistory.id}
+                      display={'flex'}
+                      flexDirection={'column'}
+                      alignItems={'flex-end'}
+                      ref={index === 0 ? lastChatRef : undefined}
+                    >
+                      {(chattingHistorys[index + 1]
+                        ? chattingHistorys[index + 1].senderUserId !== myInfo.id
+                          ? true
+                          : false
+                        : true) && (
+                        <Box>
+                          <Typography>{myInfo.name}</Typography>
+                        </Box>
+                      )}
+                      <Box
+                        padding={'8px'}
+                        bgcolor={grey['600']}
+                        maxWidth={'80%'}
+                        width={'max-content'}
+                        borderRadius={'4px'}
+                        color={'white'}
+                      >
+                        {chattingHistory.content} ======
+                        {chattingHistory.timestamp}
                       </Box>
-                    )}
-                    <Box
-                      padding={'8px'}
-                      bgcolor={grey['600']}
-                      maxWidth={'80%'}
-                      width={'max-content'}
-                      borderRadius={'4px'}
-                      color={'white'}
-                    >
-                      {chattingHistory.content}
                     </Box>
-                  </Box>
-                ) : (
-                  <Box
-                    ref={index === 0 ? lastChatRef : undefined}
-                    key={chattingHistory.id}
-                    display={'flex'}
-                    flexDirection={'column'}
-                    alignItems={'flex-start'}
-                  >
+                  ) : (
                     <Box
-                      padding={'8px'}
-                      bgcolor={grey['500']}
-                      maxWidth={'80%'}
-                      width={'max-content'}
-                      borderRadius={'4px'}
-                      color={'white'}
+                      ref={index === 0 ? lastChatRef : undefined}
+                      key={chattingHistory.id}
+                      display={'flex'}
+                      flexDirection={'column'}
+                      alignItems={'flex-start'}
                     >
-                      {chattingHistory.content}
+                      <Box
+                        padding={'8px'}
+                        bgcolor={grey['500']}
+                        maxWidth={'80%'}
+                        width={'max-content'}
+                        borderRadius={'4px'}
+                        color={'white'}
+                      >
+                        {chattingHistory.content}
+                      </Box>
                     </Box>
-                  </Box>
-                ),
-              )}
+                  ),
+                )}
+              </InfiniteScroll>
             </Box>
             <Box display={'flex'} flexDirection={'row'} gap={'4px'}>
               <Box flex={1} bgcolor={grey[300]}>
