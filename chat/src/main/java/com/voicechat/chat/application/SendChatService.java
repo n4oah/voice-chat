@@ -1,6 +1,8 @@
 package com.voicechat.chat.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.voicechat.chat.adapter.out.ChatProducer;
 import com.voicechat.chat.dto.ChatMessage;
 import com.voicechat.chat.dto.GetChannelChatting;
@@ -10,11 +12,13 @@ import com.voicechat.domain.chat.entity.ChannelChat;
 import com.voicechat.domain.chat.entity.QChannelChat;
 import com.voicechat.domain.chat.repository.ChannelChatRepository;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.querydsl.QSort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,7 +52,7 @@ public class SendChatService {
         return uuid;
     }
 
-    public String sendChannelMessage(ChatMessage chatMessage) {
+    public ReceiveMessage sendChannelMessage(ChatMessage chatMessage) {
         final var channelChat = ChannelChat.sendMessage(
                 chatMessage.uuid(),
                 chatMessage.senderUserId(),
@@ -62,37 +66,30 @@ public class SendChatService {
 
         this.channelChatRepository.save(channelChat);
 
-        return channelChat.getId();
+        return this.ofReceiveMessage(channelChat);
     }
 
     public GetChannelChatting.GetChannelChattingRes getChannelChattingList(
         Long channelId,
         GetChannelChatting.GetChannelChattingReq getChannelChattingReq
     ) {
-        final var predicate =
-                QChannelChat.channelChat.channelId.eq(channelId);
+        final var pageRequest = PageRequest.of(
+                0,
+                getChannelChattingReq.getLimit(),
+                new QSort(QChannelChat.channelChat.id.desc())
+        );
 
-        if (getChannelChattingReq.getNextCursorId() != null) {
-            predicate.and(QChannelChat.channelChat.id.lt(getChannelChattingReq.getNextCursorId()));
-        }
-
-        final var messages = this.channelChatRepository.findAll(
-                predicate,
-                PageRequest.of(
-                        0,
-                        getChannelChattingReq.getLimit(),
-                        new QSort(QChannelChat.channelChat.channelId.desc())
-                )
-        ).stream().map((chat) -> new ReceiveMessage(
-                chat.getId(),
-                chat.getUuid(),
-                chat.getSenderUserId(),
-                chat.getChannelId(),
-                chat.getContent(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern(
-                        SENT_MESSAGE_FORMAT_PATTERN
-                ))
-        )).toList();
+        final var messages =
+                (getChannelChattingReq.getNextCursorId() != null ?
+                    this.channelChatRepository.findByChannelId(
+                        channelId,
+                        getChannelChattingReq.getNextCursorId(),
+                        pageRequest
+                    ) : this.channelChatRepository.findByChannelId(
+                        channelId,
+                        pageRequest
+                    ))
+        .stream().map((chat) -> this.ofReceiveMessage(chat)).toList();
 
         if (messages.size() == 0) {
             return new GetChannelChatting.GetChannelChattingRes(Collections.emptyList(), null);
@@ -101,6 +98,19 @@ public class SendChatService {
         return new GetChannelChatting.GetChannelChattingRes(
             messages,
             messages.get(messages.size() - 1).id()
+        );
+    }
+
+    private ReceiveMessage ofReceiveMessage(ChannelChat channelChat) {
+        return new ReceiveMessage(
+                channelChat.getId().toString(),
+                channelChat.getUuid(),
+                channelChat.getSenderUserId(),
+                channelChat.getChannelId(),
+                channelChat.getContent(),
+                channelChat.getCreatedDate().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(
+                        SENT_MESSAGE_FORMAT_PATTERN
+                ))
         );
     }
 }

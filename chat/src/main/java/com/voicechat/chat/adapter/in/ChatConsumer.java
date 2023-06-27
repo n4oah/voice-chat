@@ -26,16 +26,7 @@ public class ChatConsumer {
     public void chatMessageListener(
         @Payload @Valid ChatMessage chatMessage
     ) {
-        final String chatId = chatService.sendChannelMessage(chatMessage);
-
-        final var receiveMessage = new ReceiveMessage(
-            chatId,
-            chatMessage.uuid(),
-            chatMessage.senderUserId(),
-            chatMessage.channelId(),
-            chatMessage.content(),
-            chatMessage.timestamp()
-        );
+        final var receiveMessage = chatService.sendChannelMessage(chatMessage);
 
         this.template.convertAndSend("/topic/channel/" + chatMessage.channelId(), receiveMessage);
     }
