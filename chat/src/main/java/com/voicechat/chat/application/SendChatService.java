@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.voicechat.chat.adapter.out.ChatProducer;
+import com.voicechat.chat.adapter.out.UserServiceClient;
 import com.voicechat.chat.dto.ChatMessage;
 import com.voicechat.chat.dto.GetChannelChatting;
 import com.voicechat.chat.dto.ReceiveMessage;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class SendChatService {
     private final ChatProducer chatProducer;
     private final ChannelChatRepository channelChatRepository;
+    private final ChatUserDetailService chatUserDetailService;
     private final static String SENT_MESSAGE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
     public UUID sendMessageEvent(
@@ -110,7 +112,8 @@ public class SendChatService {
                 channelChat.getContent(),
                 channelChat.getCreatedDate().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern(
                         SENT_MESSAGE_FORMAT_PATTERN
-                ))
-        );
+                )),
+                this.chatUserDetailService.getUserDetail(channelChat.getSenderUserId()).name()
+        );v
     }
 }

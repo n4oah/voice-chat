@@ -20,6 +20,9 @@ public record ReceiveMessage(
     String content,
     @NotNull
     @NotEmpty
-    String timestamp
+    String createdAt,
+    @NotNull
+    @NotEmpty
+    String senderUserName
 ) {
 }

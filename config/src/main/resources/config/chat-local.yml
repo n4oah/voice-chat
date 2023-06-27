@@ -9,3 +9,6 @@ spring:
       password: root
       database: chat
       authentication-database: admin
+    redis:
+      host: localhost
+      port: 6379

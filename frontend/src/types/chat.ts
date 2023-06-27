@@ -4,5 +4,6 @@ export type ChatReceiveMessage = {
   senderUserId: number;
   channelId: number;
   content: string;
-  timestamp: string;
+  createdAt: string;
+  senderUserName: string;
 };
