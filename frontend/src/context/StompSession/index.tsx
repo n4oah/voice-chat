@@ -43,8 +43,8 @@ export function StompSessionProvider({
           setWebSocketConnected(true);
         },
         reconnectDelay: 1000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
+        // heartbeatIncoming: 4000,
+        // heartbeatOutgoing: 4000,
       });
     });
   }, [accessToken]);

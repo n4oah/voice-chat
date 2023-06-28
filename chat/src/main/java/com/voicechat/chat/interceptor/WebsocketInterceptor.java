@@ -10,6 +10,7 @@ import com.voicechat.common.error.ErrorCode;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -29,27 +30,36 @@ public class WebsocketInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        if (StompCommand.CONNECT.equals(headerAccessor.getCommand())
-            || StompCommand.SUBSCRIBE.equals(headerAccessor.getCommand())
-            || StompCommand.SEND.equals(headerAccessor.getCommand())) {
+        if (accessor.getMessageType() == SimpMessageType.HEARTBEAT) {
+            return message;
+        }
 
-            String authorization = String.valueOf(headerAccessor.getNativeHeader("authorization"));
+        switch (accessor.getCommand()) {
+            case CONNECT:
+            case SUBSCRIBE:
+            case SEND:
+                String authorization = String.valueOf(accessor.getNativeHeader("authorization"));
 
-            if (authorization == null || authorization.equals("null")) {
-                throw new CustomMessageDeliveryException(ErrorCode.UNAUTHORIZED_ERROR);
-            }
-            authorization = authorization.substring(BEARER_PREFIX.length());
+                if (authorization == null || authorization.equals("null")) {
+                    throw new CustomMessageDeliveryException(ErrorCode.UNAUTHORIZED_ERROR);
+                }
+                authorization = authorization.substring(BEARER_PREFIX.length());
 
-            try {
-                final var memberInfo = userServiceClient.authJwtDecodeToUser(new UserAuthJwtDecodeDto.UserAuthJwtDecodeReqDto(
-                    authorization
-                )).getBody();
-            } catch (FeignException exception) {
-                log.error("e", exception);
-                this.throwFeignException(exception);
-            }
+                try {
+                    final var memberInfo = userServiceClient.authJwtDecodeToUser(new UserAuthJwtDecodeDto.UserAuthJwtDecodeReqDto(
+                            authorization
+                    )).getBody();
+                } catch (FeignException exception) {
+                    log.error("e", exception);
+                    this.throwFeignException(exception);
+                }
+                break;
+            case DISCONNECT:
+                break;
+            default:
+                break;
         }
 
         return message;
@@ -68,5 +78,13 @@ public class WebsocketInterceptor implements ChannelInterceptor {
         } catch (JsonProcessingException e) {
             throw exception;
         }
+    }
+
+    private void onlineUser() {
+
+    }
+
+    private void offlineUser() {
+
     }
 }
