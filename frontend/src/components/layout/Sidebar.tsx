@@ -118,7 +118,7 @@ function ChannelWrapper({
   const { isWebSocketConnected, stompClient } = useStompSessionContext();
   const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
   const uniqueId = useId();
-  const stompSubscribe = useRef<StompSubscription>();
+  const stompSubscribes = useRef<StompSubscription[]>();
   const addChannelChat = useAddChannelChat(channelId);
 
   useEffect(() => {
@@ -132,21 +132,38 @@ function ChannelWrapper({
       return;
     }
 
-    stompSubscribe.current = stompClient?.subscribe(
-      `/topic/channel/${channelId}`,
-      (message) => {
-        const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
+    stompSubscribes.current = [
+      stompClient?.subscribe(
+        `/topic/channel/${channelId}`,
+        (message) => {
+          const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
 
-        addChannelChat(messageBody);
-      },
-      {
-        id: `${uniqueId}_${channelId}`,
-        authorization: `Bearer ${memberAccessToken.accessToken}`,
-      },
-    );
+          console.log('messageBody 12', messageBody);
+
+          addChannelChat(messageBody);
+        },
+        {
+          id: `${uniqueId}_${channelId}_message`,
+          authorization: `Bearer ${memberAccessToken.accessToken}`,
+        },
+      ),
+      stompClient?.subscribe(
+        `/topic/channel/${channelId}/online-status`,
+        (message) => {
+          const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
+          console.log('messageBody', messageBody);
+        },
+        {
+          id: `${uniqueId}_${channelId}_online_status`,
+          authorization: `Bearer ${memberAccessToken.accessToken}`,
+        },
+      ),
+    ];
     return () => {
-      if (stompSubscribe.current) {
-        stompSubscribe.current.unsubscribe();
+      if (stompSubscribes.current && stompSubscribes.current.length) {
+        stompSubscribes.current.forEach((stompSubscribe) => {
+          stompSubscribe.unsubscribe();
+        });
       }
     };
   }, [

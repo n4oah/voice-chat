@@ -5,13 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voicechat.chat.adapter.out.UserServiceClient;
 import com.voicechat.chat.adapter.out.dto.UserAuthJwtDecodeDto;
+import com.voicechat.chat.application.UserOnlineOfflineStatus;
 import com.voicechat.chat.exception.error.CustomMessageDeliveryException;
 import com.voicechat.common.error.ErrorCode;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.auth.BasicUserPrincipal;
 import org.springframework.messaging.simp.SimpMessageType;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
@@ -25,14 +26,20 @@ import java.util.Map;
 @Component
 @Slf4j
 public class WebsocketInterceptor implements ChannelInterceptor {
-    private final UserServiceClient userServiceClient;
     private static final String BEARER_PREFIX = "Bearer ";
+    private final UserServiceClient userServiceClient;
+    private final UserOnlineOfflineStatus userOnlineOfflineStatus;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = StompHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor.getMessageType() == SimpMessageType.HEARTBEAT) {
+            if (accessor.getUser().getName() != null) {
+                final var userId = Long.parseLong(accessor.getUser().getName());
+                this.userOnlineOfflineStatus.addOnlineUser(userId, accessor.getSessionId());
+            }
+
             return message;
         }
 
@@ -51,12 +58,20 @@ public class WebsocketInterceptor implements ChannelInterceptor {
                     final var memberInfo = userServiceClient.authJwtDecodeToUser(new UserAuthJwtDecodeDto.UserAuthJwtDecodeReqDto(
                             authorization
                     )).getBody();
+
+                    accessor.setUser(new BasicUserPrincipal(memberInfo.id().toString()));
+
+                    this.userOnlineOfflineStatus.addOnlineUser(memberInfo.id(), accessor.getSessionId());
                 } catch (FeignException exception) {
                     log.error("e", exception);
                     this.throwFeignException(exception);
                 }
                 break;
             case DISCONNECT:
+                if (accessor.getUser().getName() != null) {
+                    final var userId = Long.parseLong(accessor.getUser().getName());
+                    this.userOnlineOfflineStatus.offlineUser(userId, accessor.getSessionId());
+                }
                 break;
             default:
                 break;
@@ -78,13 +93,5 @@ public class WebsocketInterceptor implements ChannelInterceptor {
         } catch (JsonProcessingException e) {
             throw exception;
         }
-    }
-
-    private void onlineUser() {
-
-    }
-
-    private void offlineUser() {
-
     }
 }

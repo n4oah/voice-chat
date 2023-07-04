@@ -1,10 +1,7 @@
 package com.voicechat.chat.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.voicechat.chat.adapter.out.ChatProducer;
-import com.voicechat.chat.adapter.out.UserServiceClient;
 import com.voicechat.chat.dto.ChatMessage;
 import com.voicechat.chat.dto.GetChannelChatting;
 import com.voicechat.chat.dto.ReceiveMessage;
@@ -13,22 +10,19 @@ import com.voicechat.domain.chat.entity.ChannelChat;
 import com.voicechat.domain.chat.entity.QChannelChat;
 import com.voicechat.domain.chat.repository.ChannelChatRepository;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.querydsl.QSort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class SendChatService {
+public class ChatService {
     private final ChatProducer chatProducer;
     private final ChannelChatRepository channelChatRepository;
     private final ChatUserDetailService chatUserDetailService;

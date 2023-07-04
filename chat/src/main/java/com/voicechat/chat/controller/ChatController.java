@@ -1,9 +1,8 @@
 package com.voicechat.chat.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.voicechat.chat.application.SendChatService;
+import com.voicechat.chat.application.ChatService;
 import com.voicechat.chat.dto.GetChannelChatting;
-import com.voicechat.chat.dto.ReceiveMessage;
 import com.voicechat.chat.dto.SendMessageDto;
 import com.voicechat.common.constant.HeaderKey;
 import jakarta.validation.Valid;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class ChatController {
-    private final SendChatService chatService;
+    private final ChatService chatService;
 
     @PostMapping("/channel/{channelId}/")
     public SendMessageDto.SendMessageResDto sendMessage(

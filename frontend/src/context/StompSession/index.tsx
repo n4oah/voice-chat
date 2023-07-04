@@ -27,7 +27,6 @@ export function StompSessionProvider({
     if (!accessToken) {
       return;
     }
-    console.log('zxc', accessToken);
 
     setStompClient(() => {
       return new StompClient({
