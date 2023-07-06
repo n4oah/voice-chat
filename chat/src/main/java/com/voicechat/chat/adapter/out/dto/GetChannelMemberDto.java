@@ -3,27 +3,27 @@ package com.voicechat.chat.adapter.out.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 public class GetChannelMemberDto {
-    @RequiredArgsConstructor
-    @Getter
-    public static class GetChannelMemberDtoRes {
-        private final List<ChannelMemberItem> channelMembers;
-
-        @RequiredArgsConstructor
-        @Getter
-        public static class ChannelMemberItem {
+    public record GetChannelMemberDtoRes(
+        List<ChannelMemberItem> channelMembers
+    ) {
+        public record ChannelMemberItem(
             @NotNull
             @Positive
-            private final Long id;
+            Long id,
 
             @NotNull
             @NotEmpty
-            private final String name;
+            String name,
+            @NotNull
+            @Positive
+            Long userId
+        ) {
+
         }
     }
 }

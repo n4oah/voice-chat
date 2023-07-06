@@ -22,7 +22,8 @@ import { useInView } from 'react-intersection-observer';
 import { UseFetchChannelMessageApi } from '../../hooks/http/chat/useFetchChannelMessageApi';
 import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { UseFetchChannelMembersApi } from '../../hooks/http/channel/useFetchChannelMembersApi';
+import { useChannelOnlineStatusUsers } from '../../hooks/channel-chat/useChannelOnlineStatusUsers';
+import { ChannelMemberOnlineStatus } from '../../types/channel-member-online-status';
 
 class RouterQuery {
   @Type(() => Number)
@@ -38,7 +39,7 @@ function ChannelPage() {
 
   const { channelId } = plainToClass(RouterQuery, router.query);
 
-  const channelMembers = UseFetchChannelMembersApi.useFetch({ channelId });
+  const onlineStatusUsers = useChannelOnlineStatusUsers(channelId);
 
   const chattingHistorys = useRecoilValue(getChannelChat(channelId));
   const ignorePages = useRef<Set<number>>(new Set());
@@ -64,7 +65,6 @@ function ChannelPage() {
       chattingHistorys.length &&
       chattingRoomWrapper.current
     ) {
-      // || chattingHistorys[0].senderUserId === myInfo.id
       if (isLastChatView) {
         chattingRoomWrapper.current.scrollTo(
           0,
@@ -179,19 +179,33 @@ function ChannelPage() {
             <Box>
               <Typography variant="h6">온라인</Typography>
               <Box display={'flex'} flexDirection={'column'}>
-                {/* 참여중인 애들 */}
-                <Typography>닉네임</Typography>
-                <Typography>닉네임</Typography>
-                <Typography>닉네임</Typography>
+                {onlineStatusUsers
+                  .filter(
+                    (onlineStatusUser) =>
+                      onlineStatusUser.status ===
+                      ChannelMemberOnlineStatus.ONLINE,
+                  )
+                  .map((onlineStatusUser) => (
+                    <Typography key={onlineStatusUser.id}>
+                      {onlineStatusUser.name}
+                    </Typography>
+                  ))}
               </Box>
             </Box>
             <Box>
               <Typography variant="h6">오프라인</Typography>
               <Box display={'flex'} flexDirection={'column'}>
-                {/* 참여중인 애들 */}
-                <Typography>닉네임</Typography>
-                <Typography>닉네임</Typography>
-                <Typography>닉네임</Typography>
+                {onlineStatusUsers
+                  .filter(
+                    (onlineStatusUser) =>
+                      onlineStatusUser.status ===
+                      ChannelMemberOnlineStatus.OFFLINE,
+                  )
+                  .map((onlineStatusUser) => (
+                    <Typography key={onlineStatusUser.id}>
+                      {onlineStatusUser.name}
+                    </Typography>
+                  ))}
               </Box>
             </Box>
           </Box>

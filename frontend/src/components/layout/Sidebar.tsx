@@ -138,8 +138,6 @@ function ChannelWrapper({
         (message) => {
           const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
 
-          console.log('messageBody 12', messageBody);
-
           addChannelChat(messageBody);
         },
         {

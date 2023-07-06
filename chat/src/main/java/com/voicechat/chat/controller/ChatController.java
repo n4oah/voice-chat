@@ -3,6 +3,7 @@ package com.voicechat.chat.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.voicechat.chat.application.ChatService;
 import com.voicechat.chat.dto.GetChannelChatting;
+import com.voicechat.chat.dto.GetChannelOnlineUsersDto;
 import com.voicechat.chat.dto.SendMessageDto;
 import com.voicechat.common.constant.HeaderKey;
 import jakarta.validation.Valid;
@@ -32,5 +33,14 @@ public class ChatController {
             GetChannelChatting.GetChannelChattingReq getChannelChattingReq
     ) {
         return this.chatService.getChannelChattingList(channelId, getChannelChattingReq);
+    }
+
+    @GetMapping("/channel/{channelId}/online-users/")
+    public GetChannelOnlineUsersDto.GetChannelOnlineUsersResDto getChannelOnlineUsers(
+            @PathVariable("channelId") Long channelId
+    ) {
+        return new GetChannelOnlineUsersDto.GetChannelOnlineUsersResDto(
+                this.chatService.getChannelOnlineUsers(channelId)
+        );
     }
 }

@@ -24,6 +24,10 @@ public class GetChannelMemberDto {
             @NotNull
             @NotEmpty
             private final String name;
+
+            @NotNull
+            @Positive
+            private final Long userId;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.voicechat.chat.event.handler;
 
 import com.voicechat.chat.adapter.out.ChannelServiceClient;
+import com.voicechat.chat.application.ChatService;
 import com.voicechat.chat.dto.UserOnlineStatusEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ApprovedChannelInviteEventHandler {
+public class ChannelUserOnlineStatusEventHandler {
     private final SimpMessagingTemplate template;
     private final ChannelServiceClient channelServiceClient;
 

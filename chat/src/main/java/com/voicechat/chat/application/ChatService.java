@@ -1,6 +1,7 @@
 package com.voicechat.chat.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.voicechat.chat.adapter.out.ChannelServiceClient;
 import com.voicechat.chat.adapter.out.ChatProducer;
 import com.voicechat.chat.dto.ChatMessage;
 import com.voicechat.chat.dto.GetChannelChatting;
@@ -17,16 +18,20 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
+    private final static String SENT_MESSAGE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
     private final ChatProducer chatProducer;
     private final ChannelChatRepository channelChatRepository;
     private final ChatUserDetailService chatUserDetailService;
-    private final static String SENT_MESSAGE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+    private final UserOnlineOfflineStatusService userOnlineOfflineStatusService;
+    private final ChannelServiceClient channelServiceClient;
 
     public UUID sendMessageEvent(
             Long userId,
@@ -109,5 +114,13 @@ public class ChatService {
                 )),
                 this.chatUserDetailService.getUserDetail(channelChat.getSenderUserId()).name()
         );
+    }
+
+    public List<Long> getChannelOnlineUsers(Long channelId) {
+        final var channelMembers = this.channelServiceClient.getChannelMembers(channelId).getBody().channelMembers();
+
+        return channelMembers.stream().filter((channelMember) ->
+            userOnlineOfflineStatusService.isOnlineUser(channelMember.userId())
+        ).map((channelMember) -> channelMember.userId()).toList();
     }
 }

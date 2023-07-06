@@ -120,7 +120,8 @@ public class ChannelService {
         return channelMembers.stream().map(channelMember ->
             new GetChannelMemberDto.GetChannelMemberDtoRes.ChannelMemberItem(
                 channelMember.getId(),
-                this.userServiceClient.getUserInfo(channelMember.getUserId()).getBody().name()
+                this.userServiceClient.getUserInfo(channelMember.getUserId()).getBody().name(),
+                channelMember.getUserId()
             )
         ).toList();
     }
