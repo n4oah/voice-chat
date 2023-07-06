@@ -4,8 +4,10 @@ import {
   QueryKey,
   UseQueryOptions,
   useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { useAxios } from '../useAxios';
+import { produce } from 'immer';
 
 export namespace UseFetchChannelOnlineUsersApi {
   export type ResponseType = {
@@ -29,6 +31,60 @@ export namespace UseFetchChannelOnlineUsersApi {
 
       return response.data;
     };
+  }
+
+  export function useAddUser() {
+    const queryClient = useQueryClient();
+
+    function addUser(channelId: number, userId: number) {
+      queryClient.setQueryData(
+        [KEY_STRING, { channelId }],
+        (previous: ResponseType | undefined) => {
+          if (!previous) {
+            return {
+              userIds: [userId],
+            };
+          }
+
+          return produce(previous, (draft) => {
+            const userIds = Array.from(new Set(draft.userIds));
+            userIds.push(userId);
+
+            return {
+              userIds: Array.from(new Set(userIds)),
+            };
+          });
+        },
+      );
+    }
+
+    return { addUser };
+  }
+
+  export function useRemoveUser() {
+    const queryClient = useQueryClient();
+
+    function removeUser(channelId: number, userId: number) {
+      queryClient.setQueryData(
+        [KEY_STRING, { channelId }],
+        (previous: ResponseType | undefined) => {
+          if (!previous) {
+            return undefined;
+          }
+
+          return produce(previous, (draft) => {
+            const userIds = new Set(draft.userIds);
+            userIds.delete(userId);
+
+            return {
+              userIds: Array.from(userIds),
+            };
+          });
+        },
+      );
+    }
+
+    return { removeUser };
   }
 
   export const useFetch = (

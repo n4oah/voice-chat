@@ -23,7 +23,7 @@ import { UseFetchChannelMessageApi } from '../../hooks/http/chat/useFetchChannel
 import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useChannelOnlineStatusUsers } from '../../hooks/channel-chat/useChannelOnlineStatusUsers';
-import { ChannelMemberOnlineStatus } from '../../types/channel-member-online-status';
+import { UserOnlineStatus } from '../../types/user-online-status';
 
 class RouterQuery {
   @Type(() => Number)
@@ -182,8 +182,7 @@ function ChannelPage() {
                 {onlineStatusUsers
                   .filter(
                     (onlineStatusUser) =>
-                      onlineStatusUser.status ===
-                      ChannelMemberOnlineStatus.ONLINE,
+                      onlineStatusUser.status === UserOnlineStatus.ONLINE,
                   )
                   .map((onlineStatusUser) => (
                     <Typography key={onlineStatusUser.id}>
@@ -198,8 +197,7 @@ function ChannelPage() {
                 {onlineStatusUsers
                   .filter(
                     (onlineStatusUser) =>
-                      onlineStatusUser.status ===
-                      ChannelMemberOnlineStatus.OFFLINE,
+                      onlineStatusUser.status === UserOnlineStatus.OFFLINE,
                   )
                   .map((onlineStatusUser) => (
                     <Typography key={onlineStatusUser.id}>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { UseFetchChannelMembersApi } from '../http/channel/useFetchChannelMembersApi';
 import { UseFetchChannelOnlineUsersApi } from '../http/chat/useFetchChannelOnlineUsersApi';
-import { ChannelMemberOnlineStatus } from '../../types/channel-member-online-status';
+import { UserOnlineStatus } from '../../types/user-online-status';
 import { produce } from 'immer';
 
 export function useChannelOnlineStatusUsers(channelId: number) {
@@ -15,11 +15,12 @@ export function useChannelOnlineStatusUsers(channelId: number) {
       id: number;
       userId: number;
       name: string;
-      status: ChannelMemberOnlineStatus;
+      status: UserOnlineStatus;
     }[]
   >([]);
 
   useEffect(() => {
+    setUsers([]);
     if (channelMembers.data && onlineChannelUsers.data) {
       channelMembers.data.channelMembers.forEach((channelMember) => {
         if (
@@ -31,7 +32,7 @@ export function useChannelOnlineStatusUsers(channelId: number) {
             produce(users, (draft) => {
               draft.push({
                 ...channelMember,
-                status: ChannelMemberOnlineStatus.ONLINE,
+                status: UserOnlineStatus.ONLINE,
               });
             }),
           );
@@ -40,7 +41,7 @@ export function useChannelOnlineStatusUsers(channelId: number) {
             produce(users, (draft) => {
               draft.push({
                 ...channelMember,
-                status: ChannelMemberOnlineStatus.OFFLINE,
+                status: UserOnlineStatus.OFFLINE,
               });
             }),
           );

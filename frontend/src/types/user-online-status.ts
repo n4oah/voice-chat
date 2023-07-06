@@ -1,4 +1,4 @@
-export enum ChannelMemberOnlineStatus {
+export enum UserOnlineStatus {
   ONLINE = 'ONLINE',
   OFFLINE = 'OFFLINE',
 }

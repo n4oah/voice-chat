@@ -19,6 +19,9 @@ import { useStompSessionContext } from '../../context/StompSession';
 import { ChatReceiveMessage } from '../../types/chat';
 import { StompSubscription } from '@stomp/stompjs';
 import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
+import { ChannelMemberOnlineStatus } from '../../types/channel-online-status-event';
+import { UseFetchChannelOnlineUsersApi } from '../../hooks/http/chat/useFetchChannelOnlineUsersApi';
+import { UserOnlineStatus } from '../../types/user-online-status';
 
 type SidebarChannel = {
   type: 'channel';
@@ -120,6 +123,8 @@ function ChannelWrapper({
   const uniqueId = useId();
   const stompSubscribes = useRef<StompSubscription[]>();
   const addChannelChat = useAddChannelChat(channelId);
+  const { addUser } = UseFetchChannelOnlineUsersApi.useAddUser();
+  const { removeUser } = UseFetchChannelOnlineUsersApi.useRemoveUser();
 
   useEffect(() => {
     if (!stompClient) {
@@ -148,8 +153,18 @@ function ChannelWrapper({
       stompClient?.subscribe(
         `/topic/channel/${channelId}/online-status`,
         (message) => {
-          const messageBody = JSON.parse(message.body) as ChatReceiveMessage;
-          console.log('messageBody', messageBody);
+          const messageBody = JSON.parse(
+            message.body,
+          ) as ChannelMemberOnlineStatus;
+
+          switch (messageBody.userOnlineStatus) {
+            case UserOnlineStatus.ONLINE:
+              addUser(channelId, messageBody.userId);
+              break;
+            case UserOnlineStatus.OFFLINE:
+              removeUser(channelId, messageBody.userId);
+              break;
+          }
         },
         {
           id: `${uniqueId}_${channelId}_online_status`,
@@ -166,9 +181,11 @@ function ChannelWrapper({
     };
   }, [
     addChannelChat,
+    addUser,
     channelId,
     isWebSocketConnected,
     memberAccessToken,
+    removeUser,
     stompClient,
     uniqueId,
   ]);
