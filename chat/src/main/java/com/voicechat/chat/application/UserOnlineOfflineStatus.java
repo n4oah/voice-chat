@@ -1,6 +1,5 @@
 package com.voicechat.chat.application;
 
-import com.voicechat.chat.adapter.out.ChannelServiceClient;
 import com.voicechat.chat.constant.UserOnlineStatus;
 import com.voicechat.chat.dto.UserOnlineStatusEvent;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,7 +18,6 @@ public class UserOnlineOfflineStatus {
     private static final String ONLINE_STATUS_PREFIX_KEY = "CHANNEL_CHAT_ONLINE";
 
     private final RedisTemplate redisTemplate;
-    private final ChannelServiceClient channelServiceClient;
     public final ApplicationEventPublisher publisher;
 
     private String generateKey(Long userId, String sessionId) {
@@ -33,10 +30,8 @@ public class UserOnlineOfflineStatus {
 
         valueOperations.set(this.generateKey(userId, sessionId), userId.toString(), Duration.ofSeconds(30));
 
-        final var channelIds = this.getChannelsByUser(userId);
-
         publisher.publishEvent(new UserOnlineStatusEvent(
-            userId, channelIds, UserOnlineStatus.ONLINE
+            userId, UserOnlineStatus.ONLINE
         ));
     }
 
@@ -59,15 +54,8 @@ public class UserOnlineOfflineStatus {
     }
 
     public void offlineUser(Long userId) {
-        final var channelIds = this.getChannelsByUser(userId);
-
         publisher.publishEvent(new UserOnlineStatusEvent(
-                userId, channelIds, UserOnlineStatus.OFFLINE
+                userId, UserOnlineStatus.OFFLINE
         ));
-    }
-
-    private List<Long> getChannelsByUser(Long userId) {
-        final var channels = this.channelServiceClient.getChannelsByUserId(userId).getBody().channels();
-        return channels.stream().map((channel) -> channel.id()).toList();
     }
 }
