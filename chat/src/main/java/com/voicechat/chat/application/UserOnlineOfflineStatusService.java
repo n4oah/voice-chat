@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserOnlineOfflineStatus {
+public class UserOnlineOfflineStatusService {
     private static final String UNIQUE_KEY = UUID.randomUUID().toString();
     private static final String ONLINE_STATUS_PREFIX_KEY = "CHANNEL_CHAT_ONLINE";
 
