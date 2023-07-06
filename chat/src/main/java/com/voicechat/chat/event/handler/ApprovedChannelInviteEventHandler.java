@@ -1,4 +1,4 @@
-package com.voicechat.chat.handler;
+package com.voicechat.chat.event.handler;
 
 import com.voicechat.chat.dto.UserOnlineStatusEvent;
 import lombok.RequiredArgsConstructor;
