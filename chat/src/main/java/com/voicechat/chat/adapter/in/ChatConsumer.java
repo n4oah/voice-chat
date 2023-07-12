@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatConsumer {
     private final ChatService chatService;
-    private final SimpMessagingTemplate template;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     @KafkaListener(topics = KafkaTopic.TOPIC)
@@ -25,6 +25,6 @@ public class ChatConsumer {
     ) {
         final var receiveMessage = chatService.sendChannelMessage(chatMessage);
 
-        this.template.convertAndSend("/topic/channel/" + chatMessage.channelId(), receiveMessage);
+        this.simpMessagingTemplate.convertAndSend("/topic/channel/" + chatMessage.channelId(), receiveMessage);
     }
 }

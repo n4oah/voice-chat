@@ -68,7 +68,7 @@ public class WebsocketInterceptor implements ChannelInterceptor {
                 }
                 break;
             case DISCONNECT:
-                if (accessor.getUser().getName() != null) {
+                if (accessor.getUser() != null && accessor.getUser().getName() != null) {
                     final var userId = Long.parseLong(accessor.getUser().getName());
                     this.userOnlineOfflineStatusService.offlineUser(userId, accessor.getSessionId());
                 }
