@@ -2,9 +2,11 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, useRecoilValue } from 'recoil';
 import Head from 'next/head';
 import 'reflect-metadata';
+import { StompSessionProvider } from '../context/StompSession';
+import { memberAccessTokenAtom } from '../recoil/atoms/member-atom';
 
 const queryClient = new QueryClient();
 
@@ -19,10 +21,22 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <RecoilRoot>
         <QueryClientProvider client={queryClient}>
-          <Component {...pageProps} />
+          <Providers>
+            <Component {...pageProps} />
+          </Providers>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </RecoilRoot>
     </>
+  );
+}
+
+function Providers({ children }: { children: React.ReactNode }) {
+  const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
+
+  return (
+    <StompSessionProvider accessToken={memberAccessToken?.accessToken}>
+      {children}
+    </StompSessionProvider>
   );
 }

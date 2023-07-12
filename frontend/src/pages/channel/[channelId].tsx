@@ -5,6 +5,7 @@ import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import { ChannelInviteModal } from '../../components/feature/ChannelInviteModal';
 import React, {
   KeyboardEvent,
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -24,6 +25,10 @@ import { useAddChannelChat } from '../../hooks/channel-chat/useAddChannelChat';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useChannelOnlineStatusUsers } from '../../hooks/channel-chat/useChannelOnlineStatusUsers';
 import { UserOnlineStatus } from '../../types/user-online-status';
+import { useStompSessionContext } from '../../context/StompSession';
+import { memberAccessTokenAtom } from '../../recoil/atoms/member-atom';
+import { StompSubscription } from '@stomp/stompjs';
+import Peer from 'simple-peer';
 
 class RouterQuery {
   @Type(() => Number)
@@ -44,6 +49,9 @@ function ChannelPage() {
   const chattingHistorys = useRecoilValue(getChannelChat(channelId));
   const ignorePages = useRef<Set<number>>(new Set());
 
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const stompSubscribes = useRef<StompSubscription[]>([]);
+
   const addChannelChat = useAddChannelChat(channelId);
 
   const { ref: lastChatRef, inView: isLastChatView } = useInView({
@@ -58,6 +66,139 @@ function ChannelPage() {
   const myInfo = useRecoilValue(getMyInfoByAccessToken);
 
   const chattingRoomWrapper = useRef<HTMLDivElement>(null);
+
+  const { isWebSocketConnected, stompClient, sessionId } =
+    useStompSessionContext();
+  const memberAccessToken = useRecoilValue(memberAccessTokenAtom);
+
+  const createPeer = useCallback(
+    (peerId: string, userId: number, initiator: boolean) => {
+      if (!stompClient) {
+        throw new Error('stompClient not exists');
+      }
+      if (!audioStream) {
+        throw new Error('audioStream not exists');
+      }
+
+      const peer = new Peer({
+        initiator: initiator,
+        stream: audioStream,
+      });
+
+      peer.on('signal', (signal: unknown) => {
+        const data = { signal, to: peerId };
+
+        stompClient.publish({
+          destination: `/app/channel/voice/${channelId}/signal`,
+          body: JSON.stringify(data),
+          headers: {
+            authorization: `Bearer ${memberAccessToken?.accessToken}`,
+          },
+        });
+      });
+
+      peer.on('stream', (stream: unknown) => {
+        console.log(stream);
+      });
+    },
+    [audioStream, channelId, memberAccessToken?.accessToken, stompClient],
+  );
+
+  useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+        video: false,
+      })
+      .then((stream) => {
+        setAudioStream(stream);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!stompClient) {
+      return;
+    }
+
+    if (!isWebSocketConnected) {
+      return;
+    }
+
+    if (!memberAccessToken) {
+      return;
+    }
+
+    if (!audioStream) {
+      return;
+    }
+
+    stompClient.publish({
+      destination: `/app/channel/voice/${channelId}/peer`,
+      headers: {
+        authorization: `Bearer ${memberAccessToken.accessToken}`,
+      },
+    });
+
+    stompSubscribes.current = [
+      stompClient?.subscribe(
+        `/topic/channel/voice/${channelId}/peer`,
+        (message) => {
+          console.log('message', message);
+          const messageBody = JSON.parse(message.body) as {
+            userId: number;
+            peerId: string;
+          };
+
+          if (sessionId === messageBody.peerId) {
+            return;
+          }
+
+          createPeer(messageBody.peerId, messageBody.userId, true);
+        },
+        {
+          id: `${uniqueId}_${channelId}_voice_peer`,
+          authorization: `Bearer ${memberAccessToken.accessToken}`,
+        },
+      ),
+      stompClient?.subscribe(
+        `/topic/channel/voice/${channelId}/signal/${sessionId}`,
+        (message) => {
+          const messageBody = JSON.parse(message.body) as {
+            fromPeerId: string;
+            fromUserId: number;
+            toPeerId: string;
+          };
+
+          if (sessionId === messageBody.toPeerId) {
+            return;
+          }
+
+          createPeer(messageBody.fromPeerId, messageBody.fromUserId, false);
+        },
+        {
+          id: `${uniqueId}_${channelId}_voice_peer`,
+          authorization: `Bearer ${memberAccessToken.accessToken}`,
+        },
+      ),
+    ];
+
+    return () => {
+      if (stompSubscribes.current && stompSubscribes.current.length) {
+        stompSubscribes.current.forEach((stompSubscribe) => {
+          stompSubscribe.unsubscribe();
+        });
+      }
+    };
+  }, [
+    audioStream,
+    channelId,
+    createPeer,
+    isWebSocketConnected,
+    memberAccessToken,
+    sessionId,
+    stompClient,
+    uniqueId,
+  ]);
 
   useEffect(() => {
     if (
